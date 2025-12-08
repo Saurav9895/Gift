@@ -2,12 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Package, ListTree, PanelLeft, ShoppingBag, Gift, Users, ArrowLeftCircle } from "lucide-react";
+import { Home, Package, ListTree, PanelLeft, ShoppingBag, Gift, Users, ArrowLeftCircle, LogOut, User as UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/lib/auth-provider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 
 const adminNavLinks = [
   { href: "/admin", label: "Dashboard", icon: Home },
@@ -48,6 +59,40 @@ function SidebarHeader() {
     )
 }
 
+function UserMenu() {
+    const { userProfile, signOut } = useAuth();
+    const getInitials = (name: string | null) => {
+        if (!name) return 'U';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-full justify-start gap-3 px-2 h-12">
+                     <Avatar className="h-8 w-8">
+                        <AvatarFallback>{getInitials(userProfile?.name || null)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col items-start">
+                        <span className="font-medium text-sm">{userProfile?.name}</span>
+                         <span className="text-xs text-muted-foreground">Admin</span>
+                    </div>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" side="top" className="w-56 mb-2">
+                <DropdownMenuLabel>
+                    My Account
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
+
+
 export default function AdminSidebar() {
     const [open, setOpen] = useState(false);
 
@@ -69,12 +114,13 @@ export default function AdminSidebar() {
                         <NavContent />
                         <div className="mt-auto">
                             <Separator className="my-4"/>
-                            <Link href="/">
-                                <Button variant="outline" className="w-full justify-start gap-2">
+                             <Link href="/">
+                                <Button variant="outline" className="w-full justify-start gap-2 mb-4">
                                     <ArrowLeftCircle className="h-5 w-5" />
                                     <span>Back to Site</span>
                                 </Button>
                             </Link>
+                            <UserMenu />
                         </div>
                     </SheetContent>
                 </Sheet>
@@ -88,13 +134,14 @@ export default function AdminSidebar() {
                 <div className="flex-1 p-4">
                    <NavContent />
                 </div>
-                 <div className="p-4 border-t">
-                    <Link href="/">
-                        <Button variant="outline" className="w-full justify-start gap-2">
+                 <div className="p-2 border-t">
+                     <Link href="/">
+                        <Button variant="outline" className="w-full justify-start gap-2 mb-2">
                             <ArrowLeftCircle className="h-5 w-5" />
                             <span>Back to Site</span>
                         </Button>
                     </Link>
+                    <UserMenu />
                 </div>
             </aside>
         </>
