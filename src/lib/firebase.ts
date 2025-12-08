@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,5 +16,17 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+if (typeof window !== 'undefined') {
+    try {
+        enableIndexedDbPersistence(db)
+    } catch (err: any) {
+        if (err.code == 'failed-precondition') {
+            console.warn('Firebase: Multiple tabs open, persistence can only be enabled in one tab at a time.');
+        } else if (err.code == 'unimplemented') {
+            console.warn('Firebase: The current browser does not support all of the features required to enable persistence.');
+        }
+    }
+}
 
 export { app, auth, db };
