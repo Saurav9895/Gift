@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "gift-1",
+      "description": "A box of artisan chocolates.",
+      "imageUrl": "https://images.unsplash.com/photo-1614631016624-cb89bceec02c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxhcnRpc2FuJTIwY2hvY29sYXRlc3xlbnwwfHx8fDE3NjUxNjYyMjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "artisan chocolates"
+    },
+    {
+      "id": "gift-2",
+      "description": "A leather-bound journal.",
+      "imageUrl": "https://images.unsplash.com/photo-1720534195942-d55d1760df95?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxsZWF0aGVyJTIwam91cm5hbHxlbnwwfHx8fDE3NjUxMzUyOTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "leather journal"
+    },
+    {
+      "id": "gift-3",
+      "description": "A scented candle in a glass jar.",
+      "imageUrl": "https://images.unsplash.com/photo-1570823635306-250abb06d4b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzY2VudGVkJTIwY2FuZGxlfGVufDB8fHx8MTc2NTExNjkzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "scented candle"
+    },
+    {
+      "id": "gift-4",
+      "description": "A gourmet coffee set.",
+      "imageUrl": "https://images.unsplash.com/photo-1611829371787-4a7ab7bec6a4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxnb3VybWV0JTIwY29mZmVlfGVufDB8fHx8MTc2NTEyNzM3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gourmet coffee"
+    },
+    {
+      "id": "gift-5",
+      "description": "A cozy wool blanket.",
+      "imageUrl": "https://images.unsplash.com/photo-1675273316211-0885930d10da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3b29sJTIwYmxhbmtldHxlbnwwfHx8fDE3NjUxMTA5MDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "wool blanket"
+    },
+    {
+      "id": "gift-6",
+      "description": "A set of handmade ceramic mugs.",
+      "imageUrl": "https://images.unsplash.com/photo-1666445844615-0a3930270f13?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2VyYW1pYyUyMG11Z3N8ZW58MHx8fHwxNzY1MDc1NDgwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ceramic mugs"
+    },
+    {
+      "id": "gift-7",
+      "description": "A delicate silver necklace.",
+      "imageUrl": "https://images.unsplash.com/photo-1636103952204-0b738c225264?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzaWx2ZXIlMjBuZWNrbGFjZXxlbnwwfHx8fDE3NjUxMzAyNzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "silver necklace"
+    },
+    {
+      "id": "gift-8",
+      "description": "A vintage-style planter.",
+      "imageUrl": "https://images.unsplash.com/photo-1589523795613-c3fce27eea23?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGxhbnQlMjBwb3R8ZW58MHx8fHwxNzY1MDc5MDg3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "plant pot"
+    }
+  ]
 }
