@@ -1,16 +1,18 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyBd0teOb43XG9m03LaapUlOKgIDgBm5jVM",
+  authDomain: "gifting-bb15d.firebaseapp.com",
+  projectId: "gifting-bb15d",
+  storageBucket: "gifting-bb15d.appspot.com",
+  messagingSenderId: "520706551882",
+  appId: "1:520706551882:web:eae5399e62309fad4476b3",
+  measurementId: "G-8PDK5DFSL1"
 };
+
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -27,6 +29,11 @@ if (typeof window !== 'undefined') {
             console.warn('Firebase: The current browser does not support all of the features required to enable persistence.');
         }
     }
+    isSupported().then(supported => {
+      if (supported) {
+        getAnalytics(app);
+      }
+    })
 }
 
 export { app, auth, db };
