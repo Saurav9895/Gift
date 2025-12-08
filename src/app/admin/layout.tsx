@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth-provider';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+import AdminSidebar from '@/components/layout/AdminSidebar';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, userRole } = useAuth();
@@ -19,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [user, loading, userRole, router]);
 
-  if (loading || userRole !== 'admin') {
+  if (loading || !user || userRole !== 'admin') {
     return (
       <div className="flex h-[calc(100vh-4rem)] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
@@ -31,5 +32,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  return <>{children}</>;
+  return (
+    <div className="flex min-h-[calc(100vh-4rem)]">
+      <AdminSidebar />
+      <main className="flex-1 p-4 md:p-8 overflow-auto">
+        {children}
+      </main>
+    </div>
+  );
 }
