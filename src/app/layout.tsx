@@ -1,4 +1,5 @@
-import type { Metadata } from 'next';
+'use client';
+
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
@@ -7,20 +8,21 @@ import { CartProvider } from '@/lib/cart-provider';
 import { WishlistProvider } from '@/lib/wishlist-provider';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-
-export const metadata: Metadata = {
-  title: 'Giftopia',
-  description: 'Find the perfect gift for every occasion.',
-};
+import { usePathname } from 'next/navigation';
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isAdminPage = pathname.startsWith('/admin');
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <title>Giftopia - Find the perfect gift for every occasion.</title>
+        <meta name="description" content="Find the perfect gift for every occasion." />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
@@ -30,9 +32,9 @@ export default function RootLayout({
           <CartProvider>
             <WishlistProvider>
               <div className="relative flex min-h-dvh flex-col bg-background">
-                <Header />
+                {!isAdminPage && <Header />}
                 <main className="flex-1">{children}</main>
-                <Footer />
+                {!isAdminPage && <Footer />}
               </div>
               <Toaster />
             </WishlistProvider>

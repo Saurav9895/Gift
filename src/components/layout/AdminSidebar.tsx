@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Package, ListTree, PanelLeft, ShoppingBag } from "lucide-react";
+import { Home, Package, ListTree, PanelLeft, ShoppingBag, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -37,6 +37,15 @@ function NavContent() {
     )
 }
 
+function SidebarHeader() {
+    return (
+        <Link href="/" className="flex items-center gap-2">
+            <Gift className="h-7 w-7 text-primary" />
+            <span className="font-bold text-xl font-headline">Giftopia</span>
+        </Link>
+    )
+}
+
 export default function AdminSidebar() {
     const [open, setOpen] = useState(false);
 
@@ -52,7 +61,9 @@ export default function AdminSidebar() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left" className="w-64 p-4">
-                         <h2 className="text-lg font-headline font-semibold mb-4">Admin Menu</h2>
+                        <div className="mb-8">
+                            <SidebarHeader />
+                        </div>
                         <NavContent />
                     </SheetContent>
                 </Sheet>
@@ -60,8 +71,8 @@ export default function AdminSidebar() {
 
             {/* Desktop Sidebar */}
             <aside className="hidden md:flex flex-col w-64 border-r bg-card">
-                <div className="p-4">
-                    <h2 className="text-lg font-headline font-semibold">Admin Menu</h2>
+                <div className="p-4 border-b h-16 flex items-center">
+                    <SidebarHeader />
                 </div>
                 <div className="flex-1 p-4">
                    <NavContent />
