@@ -15,6 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Category name must be at least 2 characters." }),
@@ -41,6 +43,14 @@ export default function AddCategoryPage() {
 
   return (
     <div>
+      <div className="mb-8">
+        <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/categories">
+                <ArrowLeft className="mr-2 h-4 w-4"/>
+                Back to Categories
+            </Link>
+        </Button>
+      </div>
       <header className="mb-8">
         <h1 className="text-3xl font-bold font-headline">Add New Category</h1>
         <p className="text-muted-foreground">Fill out the form below to add a new category for your products.</p>

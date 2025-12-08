@@ -17,11 +17,10 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Product name must be at least 2 characters." }),
@@ -56,6 +55,14 @@ export default function AddProductPage() {
 
   return (
     <div>
+      <div className="mb-8">
+        <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/products">
+                <ArrowLeft className="mr-2 h-4 w-4"/>
+                Back to Products
+            </Link>
+        </Button>
+      </div>
       <header className="mb-8">
         <h1 className="text-3xl font-bold font-headline">Add New Product</h1>
         <p className="text-muted-foreground">Fill out the form below to add a new product to your store.</p>
