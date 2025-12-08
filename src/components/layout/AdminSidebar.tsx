@@ -2,17 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Package, ListTree, PanelLeft, ShoppingBag, Gift } from "lucide-react";
+import { Home, Package, ListTree, PanelLeft, ShoppingBag, Gift, Users, ArrowLeftCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
+import { Separator } from "@/components/ui/separator";
 
 const adminNavLinks = [
   { href: "/admin", label: "Dashboard", icon: Home },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: ListTree },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
+  { href: "/admin/users", label: "Users", icon: Users },
 ];
 
 function NavContent() {
@@ -60,11 +62,20 @@ export default function AdminSidebar() {
                             <span className="sr-only">Toggle Menu</span>
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="w-64 p-4">
+                    <SheetContent side="left" className="w-64 p-4 flex flex-col">
                         <div className="mb-8">
                             <SidebarHeader />
                         </div>
                         <NavContent />
+                        <div className="mt-auto">
+                            <Separator className="my-4"/>
+                            <Link href="/">
+                                <Button variant="outline" className="w-full justify-start gap-2">
+                                    <ArrowLeftCircle className="h-5 w-5" />
+                                    <span>Back to Site</span>
+                                </Button>
+                            </Link>
+                        </div>
                     </SheetContent>
                 </Sheet>
             </div>
@@ -76,6 +87,14 @@ export default function AdminSidebar() {
                 </div>
                 <div className="flex-1 p-4">
                    <NavContent />
+                </div>
+                 <div className="p-4 border-t">
+                    <Link href="/">
+                        <Button variant="outline" className="w-full justify-start gap-2">
+                            <ArrowLeftCircle className="h-5 w-5" />
+                            <span>Back to Site</span>
+                        </Button>
+                    </Link>
                 </div>
             </aside>
         </>
