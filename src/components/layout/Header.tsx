@@ -1,7 +1,8 @@
+
 "use client";
 
 import Link from "next/link";
-import { Heart, Menu, ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Gift } from "lucide-react";
+import { Heart, Menu, ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Gift, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -122,6 +123,14 @@ export default function Header() {
                       <Link href="/admin">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         <span>Admin Dashboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                   {userRole !== 'admin' && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/become-admin">
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        <span>Become Admin</span>
                       </Link>
                     </DropdownMenuItem>
                   )}
