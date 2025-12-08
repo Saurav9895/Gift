@@ -20,6 +20,12 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 if (typeof window !== 'undefined') {
+    isSupported().then(supported => {
+      if (supported) {
+        getAnalytics(app);
+      }
+    });
+    
     try {
         enableIndexedDbPersistence(db)
     } catch (err: any) {
@@ -29,11 +35,6 @@ if (typeof window !== 'undefined') {
             console.warn('Firebase: The current browser does not support all of the features required to enable persistence.');
         }
     }
-    isSupported().then(supported => {
-      if (supported) {
-        getAnalytics(app);
-      }
-    })
 }
 
 export { app, auth, db };
