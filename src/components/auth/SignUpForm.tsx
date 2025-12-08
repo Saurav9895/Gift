@@ -48,14 +48,12 @@ export default function SignUpForm() {
         description: "You have been successfully signed up.",
       });
       router.push('/');
-      router.refresh();
     } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Sign up failed',
         description: error.message || 'An unexpected error occurred.',
       });
-    } finally {
       setIsLoading(false);
     }
   }
