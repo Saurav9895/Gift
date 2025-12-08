@@ -48,6 +48,7 @@ export default function LoginForm() {
         description: "Welcome back!",
       });
       router.push(redirectUrl);
+      router.refresh();
     } catch (error: any) {
       toast({
         variant: 'destructive',

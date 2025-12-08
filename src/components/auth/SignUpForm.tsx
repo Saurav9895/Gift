@@ -48,6 +48,7 @@ export default function SignUpForm() {
         description: "You have been successfully signed up.",
       });
       router.push('/');
+      router.refresh();
     } catch (error: any) {
       toast({
         variant: 'destructive',
