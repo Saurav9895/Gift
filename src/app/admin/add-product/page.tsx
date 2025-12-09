@@ -22,7 +22,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { products } from "@/lib/products";
 import { Combobox } from "@/components/ui/combobox";
-import Image from "next/image";
+import { ImageUploader } from "@/components/ImageUploader";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Product name must be at least 2 characters." }),
@@ -30,7 +30,7 @@ const formSchema = z.object({
   originalPrice: z.coerce.number().positive({ message: "Original price must be a positive number." }),
   discountedPrice: z.coerce.number().positive({ message: "Discounted price must be a positive number." }),
   quantity: z.coerce.number().int().positive({ message: "Quantity must be a positive integer." }),
-  imageUrl: z.string().url({ message: "Please enter a valid image URL." }),
+  imageUrl: z.string().url({ message: "Please upload an image." }),
   category: z.string().min(2, { message: "Category must be at least 2 characters." }),
 });
 
@@ -171,34 +171,17 @@ export default function AddProductPage() {
                     name="imageUrl"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Image URL</FormLabel>
+                        <FormLabel>Product Image</FormLabel>
                         <FormControl>
-                        <Input placeholder="https://example.com/image.jpg" {...field} />
+                            <ImageUploader 
+                                onUrlChange={field.onChange} 
+                                currentImageUrl={field.value}
+                            />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
                     )}
                 />
-
-                {imageUrl && (
-                  <div className="mt-4">
-                    <FormLabel>Image Preview</FormLabel>
-                    <div className="mt-2 relative aspect-video w-full max-w-sm rounded-md overflow-hidden border bg-muted">
-                      <Image
-                        src={imageUrl}
-                        alt="Product image preview"
-                        fill
-                        className="object-contain"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                        onLoad={(e) => {
-                          e.currentTarget.style.display = 'block';
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
               <Button type="submit">Add Product</Button>
             </form>
           </Form>
