@@ -10,6 +10,7 @@ import { Loader2, ShoppingCart } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -38,12 +39,20 @@ export default function ProductDetailPage() {
                 alt={product.name}
                 fill
                 className="object-cover"
+                onError={(e) => {
+                  if (e.target instanceof HTMLImageElement) {
+                    e.target.style.display = 'none';
+                  }
+                }}
               />
             )}
            </div>
         </div>
         <div>
           <h1 className="text-3xl md:text-4xl font-headline font-bold mb-2">{product.name}</h1>
+           <div className="mb-4">
+              <Badge variant="outline" className="text-sm capitalize">{product.category}</Badge>
+            </div>
           <p className="text-muted-foreground text-lg mb-6">{product.description}</p>
           
           <div className="flex items-baseline gap-4 mb-6">
