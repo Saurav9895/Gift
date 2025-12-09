@@ -9,6 +9,7 @@ import { useCart } from "@/lib/cart-provider";
 import { Loader2, ShoppingCart } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
