@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 
 export default function CategoriesPage() {
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
@@ -56,6 +57,7 @@ export default function CategoriesPage() {
           <Table>
               <TableHeader>
                   <TableRow>
+                      <TableHead className="w-[80px]">Image</TableHead>
                       <TableHead>Category Name</TableHead>
                       <TableHead className="text-right">Product Count</TableHead>
                   </TableRow>
@@ -63,6 +65,17 @@ export default function CategoriesPage() {
               <TableBody>
                   {categories.map((category) => (
                       <TableRow key={category.id}>
+                           <TableCell>
+                              {category.imageUrl && (
+                                  <Image
+                                      src={category.imageUrl}
+                                      alt={category.name}
+                                      width={48}
+                                      height={48}
+                                      className="rounded-md object-cover"
+                                  />
+                              )}
+                          </TableCell>
                           <TableCell className="font-medium">{category.name}</TableCell>
                           <TableCell className="text-right">
                               <Badge variant="secondary">{getProductCount(category.name)}</Badge>
