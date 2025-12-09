@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Category name must be at least 2 characters." }),
@@ -31,6 +32,8 @@ export default function AddCategoryPage() {
       imageUrl: "",
     },
   });
+
+  const imageUrl = form.watch("imageUrl");
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -78,6 +81,21 @@ export default function AddCategoryPage() {
                   </FormItem>
                 )}
               />
+               {imageUrl && (
+                  <div className="mt-4">
+                    <FormLabel>Image Preview</FormLabel>
+                    <div className="mt-2 relative aspect-video w-full max-w-sm rounded-md overflow-hidden border bg-muted">
+                       <Image
+                        src={imageUrl}
+                        alt="Category image preview"
+                        fill
+                        className="object-contain"
+                        onError={(e) => e.currentTarget.style.display = 'none'}
+                        onLoad={(e) => e.currentTarget.style.display = 'block'}
+                      />
+                    </div>
+                  </div>
+                )}
               <Button type="submit">Add Category</Button>
             </form>
           </Form>
