@@ -27,7 +27,7 @@ export default function ProductsPage() {
           <p className="text-muted-foreground">Manage all products in your store.</p>
         </div>
         <Button asChild>
-          <Link href="/admin/products/add">
+          <Link href="/admin/add-product">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add Product
           </Link>

@@ -29,7 +29,7 @@ export default function CategoriesPage() {
           <p className="text-muted-foreground">Organize your products into categories.</p>
         </div>
         <Button asChild>
-          <Link href="/admin/categories/add">
+          <Link href="/admin/add-category">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add Category
           </Link>

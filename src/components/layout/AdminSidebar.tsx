@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Package, ListTree, PanelLeft, ShoppingBag, Gift, Users, ArrowLeftCircle, LogOut, User as UserIcon } from "lucide-react";
+import { Home, Package, ListTree, PanelLeft, ShoppingBag, Gift, Users, ArrowLeftCircle, LogOut, User as UserIcon, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -26,6 +26,8 @@ const adminNavLinks = [
   { href: "/admin/categories", label: "Categories", icon: ListTree },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/add-product", label: "Add Product", icon: PlusCircle },
+  { href: "/admin/add-category", label: "Add Category", icon: PlusCircle },
 ];
 
 function NavContent() {
@@ -33,7 +35,7 @@ function NavContent() {
     return (
         <nav className="flex flex-col gap-2">
             {adminNavLinks.map((link) => {
-                const isActive = pathname.startsWith(link.href) && (link.href !== "/admin" || pathname === "/admin");
+                const isActive = pathname === link.href;
                 return (
                 <Link key={link.href} href={link.href}>
                     <Button
