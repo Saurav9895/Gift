@@ -1,6 +1,6 @@
 
 import { Product } from '@/types';
-import { collection, addDoc, getDocs, onSnapshot, doc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, onSnapshot, doc, getDoc, query, where, limit } from 'firebase/firestore';
 import { db } from './firebase';
 import { useEffect, useState } from 'react';
 
@@ -37,15 +37,27 @@ export const getProductById = async (id: string): Promise<Product | null> => {
     }
 };
 
-export const useProducts = () => {
+export const useProducts = (options?: { category?: string; limit?: number, excludeId?: string }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(productsCollection, 
+    let q = query(productsCollection);
+    
+    if (options?.category) {
+        q = query(q, where('category', '==', options.category));
+    }
+    if (options?.limit) {
+        q = query(q, limit(options.limit));
+    }
+
+    const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
-        const productsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+        let productsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+        if (options?.excludeId) {
+            productsList = productsList.filter(p => p.id !== options.excludeId);
+        }
         setProducts(productsList);
         setLoading(false);
       },
@@ -57,7 +69,7 @@ export const useProducts = () => {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [options?.category, options?.limit, options?.excludeId]);
 
   return { products, loading, error };
 }

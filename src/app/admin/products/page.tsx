@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Loader2, PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useProducts } from "@/lib/products";
 import {
   Table,
@@ -15,6 +15,12 @@ import {
 } from "@/components/ui/table";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function ProductsPage() {
     const { products, loading, error } = useProducts();
@@ -51,6 +57,7 @@ export default function ProductsPage() {
                       <TableHead>Name</TableHead>
                       <TableHead>Category</TableHead>
                       <TableHead className="text-right">Price</TableHead>
+                      <TableHead className="w-[50px] text-right">Actions</TableHead>
                   </TableRow>
               </TableHeader>
               <TableBody>
@@ -72,6 +79,26 @@ export default function ProductsPage() {
                               <Badge variant="outline">{product.category}</Badge>
                           </TableCell>
                           <TableCell className="text-right">${product.price.toFixed(2)}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                        <span className="sr-only">Actions</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem>
+                                        <Pencil className="mr-2 h-4 w-4" />
+                                        Edit
+                                    </DropdownMenuItem>
+                                     <DropdownMenuItem className="text-destructive">
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
                       </TableRow>
                   ))}
               </TableBody>

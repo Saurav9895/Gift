@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useProduct } from "@/lib/products";
+import { useProduct, useProducts } from "@/lib/products";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -11,12 +11,20 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { ProductReviews } from "@/components/ProductReviews";
+import ProductCard from "@/components/ProductCard";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
   const productId = typeof id === "string" ? id : "";
   const { product, loading, error } = useProduct(productId);
   const { addToCart } = useCart();
+
+  const { products: relatedProducts, loading: relatedLoading } = useProducts({
+      category: product?.category,
+      limit: 5,
+      excludeId: productId,
+  });
 
   if (loading) {
     return <ProductDetailSkeleton />;
@@ -29,6 +37,7 @@ export default function ProductDetailPage() {
   const hasDiscount = product.discountedPrice < product.originalPrice;
 
   return (
+    <>
     <div className="container mx-auto px-4 py-12">
       <div className="grid md:grid-cols-2 gap-12 items-start">
         <div className="bg-card rounded-lg overflow-hidden border">
@@ -53,7 +62,7 @@ export default function ProductDetailPage() {
            <div className="mb-4">
               <Badge variant="outline" className="text-sm capitalize">{product.category}</Badge>
             </div>
-          <p className="text-muted-foreground text-lg mb-6">{product.description}</p>
+          <p className="text-muted-foreground text-lg mb-6">{product.shortDescription}</p>
           
           <div className="flex items-baseline gap-4 mb-6">
             {hasDiscount && (
@@ -72,9 +81,34 @@ export default function ProductDetailPage() {
                 Add to Cart
             </Button>
           </div>
+          <Separator className="my-8" />
+          <div>
+            <h3 className="text-xl font-headline font-bold mb-4">About this Gift</h3>
+            <div className="prose prose-sm max-w-none text-muted-foreground">
+                 <p>{product.longDescription}</p>
+            </div>
+          </div>
         </div>
       </div>
+       <Separator className="my-16" />
+
+       <ProductReviews productId={productId} />
+
     </div>
+    
+    {!relatedLoading && relatedProducts.length > 0 && (
+         <div className="bg-muted/50">
+            <div className="container mx-auto px-4 py-16">
+                 <h2 className="text-3xl font-headline font-bold text-center mb-8">You May Also Like</h2>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                     {relatedProducts.map(p => (
+                         <ProductCard key={p.id} product={p} />
+                     ))}
+                 </div>
+            </div>
+         </div>
+    )}
+   </>
   );
 }
 

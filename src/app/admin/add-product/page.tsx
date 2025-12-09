@@ -28,7 +28,8 @@ import { useState } from "react";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Product name must be at least 2 characters." }),
-  description: z.string().min(10, { message: "Description must be at least 10 characters." }),
+  shortDescription: z.string().min(10, { message: "Short description must be at least 10 characters." }),
+  longDescription: z.string().min(20, { message: "Long description must be at least 20 characters." }),
   originalPrice: z.coerce.number().positive({ message: "Original price must be a positive number." }),
   discountedPrice: z.coerce.number().positive({ message: "Discounted price must be a positive number." }),
   quantity: z.coerce.number().int().positive({ message: "Quantity must be a positive integer." }),
@@ -50,7 +51,8 @@ export default function AddProductPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      description: "",
+      shortDescription: "",
+      longDescription: "",
       originalPrice: 0,
       discountedPrice: 0,
       quantity: 1,
@@ -109,14 +111,31 @@ export default function AddProductPage() {
               />
               <FormField
                 control={form.control}
-                name="description"
+                name="shortDescription"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>Short Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="A curated selection of hand-crafted chocolates..."
+                        placeholder="A brief, catchy description for product cards."
                         className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+                <FormField
+                control={form.control}
+                name="longDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Long Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="A detailed description for the product page."
+                        className="resize-vertical min-h-[120px]"
                         {...field}
                       />
                     </FormControl>

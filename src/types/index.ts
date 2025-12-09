@@ -11,7 +11,8 @@ export interface UserProfile {
 export interface Product {
   id: string;
   name: string;
-  description: string;
+  shortDescription: string;
+  longDescription: string;
   price: number;
   originalPrice: number;
   discountedPrice: number;
@@ -28,4 +29,14 @@ export interface Category {
 
 export interface CartItem extends Product {
   quantity: number;
+}
+
+export interface Review {
+  id: string;
+  productId: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: any;
 }
