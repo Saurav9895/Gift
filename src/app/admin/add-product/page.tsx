@@ -27,7 +27,9 @@ import Image from "next/image";
 const formSchema = z.object({
   name: z.string().min(2, { message: "Product name must be at least 2 characters." }),
   description: z.string().min(10, { message: "Description must be at least 10 characters." }),
-  price: z.coerce.number().positive({ message: "Price must be a positive number." }),
+  originalPrice: z.coerce.number().positive({ message: "Original price must be a positive number." }),
+  discountedPrice: z.coerce.number().positive({ message: "Discounted price must be a positive number." }),
+  quantity: z.coerce.number().int().positive({ message: "Quantity must be a positive integer." }),
   imageUrl: z.string().url({ message: "Please enter a valid image URL." }),
   category: z.string().min(2, { message: "Category must be at least 2 characters." }),
 });
@@ -45,7 +47,9 @@ export default function AddProductPage() {
     defaultValues: {
       name: "",
       description: "",
-      price: 0,
+      originalPrice: 0,
+      discountedPrice: 0,
+      quantity: 1,
       imageUrl: "",
       category: "",
     },
@@ -103,13 +107,26 @@ export default function AddProductPage() {
                   </FormItem>
                 )}
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                  <FormField
                     control={form.control}
-                    name="price"
+                    name="originalPrice"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Price</FormLabel>
+                        <FormLabel>Original Price</FormLabel>
+                        <FormControl>
+                        <Input type="number" step="0.01" placeholder="e.g., 49.99" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="discountedPrice"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Discounted Price</FormLabel>
                         <FormControl>
                         <Input type="number" step="0.01" placeholder="e.g., 39.99" {...field} />
                         </FormControl>
@@ -117,7 +134,21 @@ export default function AddProductPage() {
                     </FormItem>
                     )}
                 />
-                <FormField
+                 <FormField
+                    control={form.control}
+                    name="quantity"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Quantity</FormLabel>
+                        <FormControl>
+                        <Input type="number" placeholder="e.g., 100" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+              </div>
+               <FormField
                     control={form.control}
                     name="category"
                     render={({ field }) => (
@@ -135,7 +166,6 @@ export default function AddProductPage() {
                         </FormItem>
                     )}
                 />
-              </div>
                <FormField
                     control={form.control}
                     name="imageUrl"
