@@ -1,68 +1,46 @@
-import type { Product } from '@/types';
+import { Product } from '@/types';
+import { collection, addDoc, getDocs, onSnapshot } from 'firebase/firestore';
+import { db } from './firebase';
+import { useEffect, useState } from 'react';
 
-export const products: Product[] = [
-  {
-    id: 'prod-1',
-    name: 'Artisan Chocolate Box',
-    description: 'A curated selection of hand-crafted chocolates from the finest chocolatiers.',
-    price: 39.99,
-    imageId: 'gift-1',
-    category: 'Gourmet',
-  },
-  {
-    id: 'prod-2',
-    name: 'Leather-Bound Journal',
-    description: 'A classic journal with premium paper, perfect for thoughts and sketches.',
-    price: 24.50,
-    imageId: 'gift-2',
-    category: 'Stationery',
-  },
-  {
-    id: 'prod-3',
-    name: 'Lavender Scented Candle',
-    description: 'A soy-wax candle with a calming lavender scent to create a relaxing atmosphere.',
-    price: 18.00,
-    imageId: 'gift-3',
-    category: 'Home Decor',
-  },
-  {
-    id: 'prod-4',
-    name: 'Gourmet Coffee Set',
-    description: 'An assortment of single-origin coffee beans for the discerning coffee lover.',
-    price: 45.00,
-    imageId: 'gift-4',
-    category: 'Gourmet',
-  },
-  {
-    id: 'prod-5',
-    name: 'Cozy Wool Blanket',
-    description: 'A soft and warm merino wool blanket, ideal for chilly evenings.',
-    price: 89.99,
-    imageId: 'gift-5',
-    category: 'Home Goods',
-  },
-  {
-    id: 'prod-6',
-    name: 'Handmade Ceramic Mugs',
-    description: 'A set of two unique, handmade ceramic mugs with an earthy glaze.',
-    price: 32.00,
-    imageId: 'gift-6',
-    category: 'Kitchenware',
-  },
-  {
-    id: 'prod-7',
-    name: 'Delicate Silver Necklace',
-    description: 'A minimalist sterling silver necklace with a small pendant.',
-    price: 55.00,
-    imageId: 'gift-7',
-    category: 'Jewelry',
-  },
-  {
-    id: 'prod-8',
-    name: 'Vintage-Style Planter',
-    description: 'A beautiful ceramic planter to house your favorite indoor plant.',
-    price: 28.00,
-    imageId: 'gift-8',
-    category: 'Home Decor',
-  },
-];
+const productsCollection = collection(db, 'products');
+
+export const addProduct = async (product: Omit<Product, 'id'>) => {
+  try {
+    const docRef = await addDoc(productsCollection, product);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding product: ', error);
+    throw new Error('Failed to add product');
+  }
+};
+
+export const getProducts = async (): Promise<Product[]> => {
+  const querySnapshot = await getDocs(productsCollection);
+  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+};
+
+export const useProducts = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(productsCollection, 
+      (querySnapshot) => {
+        const productsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+        setProducts(productsList);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Error fetching products:", err);
+        setError("Failed to fetch products.");
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  return { products, loading, error };
+}

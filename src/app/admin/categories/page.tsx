@@ -3,8 +3,9 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
-import { products } from "@/lib/products";
+import { Loader2, PlusCircle } from "lucide-react";
+import { useCategories } from "@/lib/categories";
+import { useProducts } from "@/lib/products";
 import {
   Table,
   TableBody,
@@ -16,10 +17,16 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 export default function CategoriesPage() {
-  const categories = [...new Set(products.map(p => p.category))].map(category => ({
-      name: category,
-      productCount: products.filter(p => p.category === category).length
-  }));
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const { products, loading: productsLoading, error: productsError } = useProducts();
+
+  const getProductCount = (categoryName: string) => {
+    if (productsLoading) return <Loader2 className="h-4 w-4 animate-spin" />;
+    return products.filter(p => p.category.toLowerCase() === categoryName.toLowerCase()).length;
+  }
+  
+  const isLoading = categoriesLoading || productsLoading;
+  const error = categoriesError || productsError;
 
   return (
     <div>
@@ -36,26 +43,36 @@ export default function CategoriesPage() {
         </Button>
       </header>
       
-      <div className="bg-card rounded-lg border">
-         <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Category Name</TableHead>
-                    <TableHead className="text-right">Product Count</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {categories.map((category) => (
-                    <TableRow key={category.name}>
-                        <TableCell className="font-medium">{category.name}</TableCell>
-                        <TableCell className="text-right">
-                            <Badge variant="secondary">{category.productCount}</Badge>
-                        </TableCell>
-                    </TableRow>
-                ))}
-            </TableBody>
-        </Table>
-      </div>
+       {isLoading && (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      )}
+
+      {error && <div className="text-center text-destructive">{error}</div>}
+
+      {!isLoading && !error && (
+        <div className="bg-card rounded-lg border">
+          <Table>
+              <TableHeader>
+                  <TableRow>
+                      <TableHead>Category Name</TableHead>
+                      <TableHead className="text-right">Product Count</TableHead>
+                  </TableRow>
+              </TableHeader>
+              <TableBody>
+                  {categories.map((category) => (
+                      <TableRow key={category.id}>
+                          <TableCell className="font-medium">{category.name}</TableCell>
+                          <TableCell className="text-right">
+                              <Badge variant="secondary">{getProductCount(category.name)}</Badge>
+                          </TableCell>
+                      </TableRow>
+                  ))}
+              </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }

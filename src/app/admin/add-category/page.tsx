@@ -17,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUploader } from "@/components/ImageUploader";
+import { addCategory } from "@/lib/categories";
+import { useState } from "react";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Category name must be at least 2 characters." }),
@@ -25,6 +27,7 @@ const formSchema = z.object({
 
 export default function AddCategoryPage() {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -33,16 +36,25 @@ export default function AddCategoryPage() {
     },
   });
 
-  const imageUrl = form.watch("imageUrl");
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Here you would typically handle form submission, e.g., saving to a database
-    toast({
-      title: "Category Added",
-      description: `Category "${values.name}" has been successfully added.`,
-    });
-    form.reset();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    try {
+      await addCategory(values);
+      toast({
+        title: "Category Added",
+        description: `Category "${values.name}" has been successfully added.`,
+      });
+      form.reset();
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add category.",
+      });
+    } finally {
+        setIsLoading(false);
+    }
   }
 
   return (
@@ -84,7 +96,7 @@ export default function AddCategoryPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Add Category</Button>
+              <Button type="submit" disabled={isLoading}>{isLoading ? "Adding..." : "Add Category"}</Button>
             </form>
           </Form>
         </CardContent>

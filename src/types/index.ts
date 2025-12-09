@@ -12,8 +12,17 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  imageId: string;
+  originalPrice: number;
+  discountedPrice: number;
+  quantity: number;
+  imageUrl: string;
   category: string;
+}
+
+export interface Category {
+    id: string;
+    name: string;
+    imageUrl: string;
 }
 
 export interface CartItem extends Product {

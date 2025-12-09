@@ -3,8 +3,8 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
-import { products } from "@/lib/products";
+import { Loader2, PlusCircle } from "lucide-react";
+import { useProducts } from "@/lib/products";
 import {
   Table,
   TableBody,
@@ -14,10 +14,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Image from "next/image";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Badge } from "@/components/ui/badge";
 
 export default function ProductsPage() {
+    const { products, loading, error } = useProducts();
+
   return (
     <div>
       <header className="flex items-center justify-between mb-8">
@@ -33,43 +34,50 @@ export default function ProductsPage() {
         </Button>
       </header>
       
-      <div className="bg-card rounded-lg border">
-         <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead className="w-[80px]">Image</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead className="text-right">Price</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {products.map((product) => {
-                    const placeholder = PlaceHolderImages.find(p => p.id === product.imageId);
-                    return (
-                        <TableRow key={product.id}>
-                            <TableCell>
-                                {placeholder && (
-                                    <Image
-                                        src={placeholder.imageUrl}
-                                        alt={product.name}
-                                        width={48}
-                                        height={48}
-                                        className="rounded-md object-cover"
-                                    />
-                                )}
-                            </TableCell>
-                            <TableCell className="font-medium">{product.name}</TableCell>
-                            <TableCell>
-                                <Badge variant="outline">{product.category}</Badge>
-                            </TableCell>
-                            <TableCell className="text-right">${product.price.toFixed(2)}</TableCell>
-                        </TableRow>
-                    );
-                })}
-            </TableBody>
-        </Table>
-      </div>
+      {loading && (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      )}
+
+      {error && <div className="text-center text-destructive">{error}</div>}
+      
+      {!loading && !error && (
+        <div className="bg-card rounded-lg border">
+          <Table>
+              <TableHeader>
+                  <TableRow>
+                      <TableHead className="w-[80px]">Image</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead className="text-right">Price</TableHead>
+                  </TableRow>
+              </TableHeader>
+              <TableBody>
+                  {products.map((product) => (
+                      <TableRow key={product.id}>
+                          <TableCell>
+                              {product.imageUrl && (
+                                  <Image
+                                      src={product.imageUrl}
+                                      alt={product.name}
+                                      width={48}
+                                      height={48}
+                                      className="rounded-md object-cover"
+                                  />
+                              )}
+                          </TableCell>
+                          <TableCell className="font-medium">{product.name}</TableCell>
+                          <TableCell>
+                              <Badge variant="outline">{product.category}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right">${product.price.toFixed(2)}</TableCell>
+                      </TableRow>
+                  ))}
+              </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }

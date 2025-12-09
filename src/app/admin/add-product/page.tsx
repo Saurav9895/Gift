@@ -20,9 +20,11 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { products } from "@/lib/products";
+import { addProduct } from "@/lib/products";
+import { useCategories } from "@/lib/categories";
 import { Combobox } from "@/components/ui/combobox";
 import { ImageUploader } from "@/components/ImageUploader";
+import { useState } from "react";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Product name must be at least 2 characters." }),
@@ -31,15 +33,17 @@ const formSchema = z.object({
   discountedPrice: z.coerce.number().positive({ message: "Discounted price must be a positive number." }),
   quantity: z.coerce.number().int().positive({ message: "Quantity must be a positive integer." }),
   imageUrl: z.string().url({ message: "Please upload an image." }),
-  category: z.string().min(2, { message: "Category must be at least 2 characters." }),
+  category: z.string().min(1, { message: "Please select a category." }),
 });
 
 export default function AddProductPage() {
   const { toast } = useToast();
+  const { categories: categoryData, loading: categoriesLoading } = useCategories();
+  const [isLoading, setIsLoading] = useState(false);
   
-  const categories = [...new Set(products.map(p => p.category))].map(category => ({
-      value: category.toLowerCase(),
-      label: category,
+  const categories = categoryData.map(c => ({
+      value: c.name.toLowerCase(),
+      label: c.name,
   }));
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -55,16 +59,29 @@ export default function AddProductPage() {
     },
   });
 
-  const imageUrl = form.watch("imageUrl");
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Here you would typically handle form submission, e.g., saving to a database
-    toast({
-      title: "Product Added",
-      description: `Product "${values.name}" has been successfully added.`,
-    });
-    form.reset();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    const productData = {
+        ...values,
+        price: values.discountedPrice // Use discounted price as the main price
+    };
+    try {
+      await addProduct(productData);
+      toast({
+        title: "Product Added",
+        description: `Product "${values.name}" has been successfully added.`,
+      });
+      form.reset();
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add product.",
+      });
+    } finally {
+        setIsLoading(false);
+    }
   }
 
   return (
@@ -158,7 +175,7 @@ export default function AddProductPage() {
                                 options={categories}
                                 value={field.value}
                                 onChange={field.onChange}
-                                placeholder="Select category..."
+                                placeholder={categoriesLoading ? "Loading..." : "Select category..."}
                                 searchPlaceholder="Search categories..."
                                 notFoundText="No category found."
                             />
@@ -182,7 +199,7 @@ export default function AddProductPage() {
                     </FormItem>
                     )}
                 />
-              <Button type="submit">Add Product</Button>
+              <Button type="submit" disabled={isLoading}>{isLoading ? "Adding..." : "Add Product"}</Button>
             </form>
           </Form>
         </CardContent>

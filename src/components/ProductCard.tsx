@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Heart, ShoppingCart } from "lucide-react";
 import { useCart } from "@/lib/cart-provider";
 import { useWishlist } from "@/lib/wishlist-provider";
@@ -25,20 +24,18 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
-  const placeholder = PlaceHolderImages.find(p => p.id === product.imageId);
   const isWishlisted = isInWishlist(product.id);
 
   return (
     <Card className="w-full flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
       <CardHeader className="p-0">
         <div className="aspect-video relative">
-          {placeholder && (
+          {product.imageUrl && (
             <Image
-              src={placeholder.imageUrl}
-              alt={placeholder.description}
+              src={product.imageUrl}
+              alt={product.name}
               fill
               className="object-cover"
-              data-ai-hint={placeholder.imageHint}
             />
           )}
         </div>

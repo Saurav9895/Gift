@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile in the system.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID from Firebase Auth."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "customer",
+            "admin"
+          ],
+          "description": "The user's role in the system."
+        }
+      },
+      "required": [
+        "uid",
+        "email",
+        "role"
+      ]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Represents a product in the store.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "originalPrice": {
+            "type": "number"
+        },
+        "discountedPrice": {
+            "type": "number"
+        },
+        "quantity": {
+            "type": "number"
+        },
+        "imageUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "category": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "price",
+        "imageUrl",
+        "category",
+        "originalPrice",
+        "discountedPrice",
+        "quantity"
+      ]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Represents a product category.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "imageUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "name",
+        "imageUrl"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "email-password"
+    ]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Stores user profile information."
+    },
+    "/products/{productId}": {
+      "schema": {
+        "$ref": "#/entities/Product"
+      },
+      "description": "Stores product information."
+    },
+    "/categories/{categoryId}": {
+        "schema": {
+            "$ref": "#/entities/Category"
+        },
+        "description": "Stores category information."
+    }
+  }
+}
