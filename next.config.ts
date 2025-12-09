@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'encrypted-tbn1.gstatic.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
