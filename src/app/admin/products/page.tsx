@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { products } from "@/lib/products";
-import ProductCard from "@/components/ProductCard";
 import {
   Table,
   TableBody,
