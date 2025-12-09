@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -18,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Category name must be at least 2 characters." }),
+  imageUrl: z.string().url({ message: "Please enter a valid image URL." }),
 });
 
 export default function AddCategoryPage() {
@@ -26,6 +28,7 @@ export default function AddCategoryPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      imageUrl: "",
     },
   });
 
@@ -57,6 +60,19 @@ export default function AddCategoryPage() {
                     <FormLabel>Category Name</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g., Home Decor" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category Image URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://example.com/category-image.jpg" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

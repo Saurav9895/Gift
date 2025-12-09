@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -19,24 +20,32 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { products } from "@/lib/products";
+import { Combobox } from "@/components/ui/combobox";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Product name must be at least 2 characters." }),
   description: z.string().min(10, { message: "Description must be at least 10 characters." }),
   price: z.coerce.number().positive({ message: "Price must be a positive number." }),
-  imageId: z.string().min(1, { message: "Image ID is required." }),
+  imageUrl: z.string().url({ message: "Please enter a valid image URL." }),
   category: z.string().min(2, { message: "Category must be at least 2 characters." }),
 });
 
 export default function AddProductPage() {
   const { toast } = useToast();
+  
+  const categories = [...new Set(products.map(p => p.category))].map(category => ({
+      value: category.toLowerCase(),
+      label: category,
+  }));
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
       price: 0,
-      imageId: "",
+      imageUrl: "",
       category: "",
     },
   });
@@ -105,32 +114,34 @@ export default function AddProductPage() {
                     </FormItem>
                     )}
                 />
-                 <FormField
+                <FormField
                     control={form.control}
                     name="category"
                     render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <FormControl>
-                        <Input placeholder="e.g., Gourmet" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
+                        <FormItem className="flex flex-col">
+                            <FormLabel>Category</FormLabel>
+                            <Combobox
+                                options={categories}
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder="Select category..."
+                                searchPlaceholder="Search categories..."
+                                notFoundText="No category found."
+                            />
+                            <FormMessage />
+                        </FormItem>
                     )}
                 />
               </div>
                <FormField
                     control={form.control}
-                    name="imageId"
+                    name="imageUrl"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Image ID</FormLabel>
+                        <FormLabel>Image URL</FormLabel>
                         <FormControl>
-                        <Input placeholder="e.g., gift-1" {...field} />
+                        <Input placeholder="https://example.com/image.jpg" {...field} />
                         </FormControl>
-                         <p className="text-sm text-muted-foreground">
-                            This should match an ID from the placeholder images file.
-                        </p>
                         <FormMessage />
                     </FormItem>
                     )}
