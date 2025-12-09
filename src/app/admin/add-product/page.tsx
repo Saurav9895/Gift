@@ -189,8 +189,12 @@ export default function AddProductPage() {
                         alt="Product image preview"
                         fill
                         className="object-contain"
-                        onError={(e) => e.currentTarget.style.display = 'none'}
-                        onLoad={(e) => e.currentTarget.style.display = 'block'}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                        onLoad={(e) => {
+                          e.currentTarget.style.display = 'block';
+                        }}
                       />
                     </div>
                   </div>
