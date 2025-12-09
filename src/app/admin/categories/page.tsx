@@ -1,10 +1,11 @@
 
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Loader2, PlusCircle, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { useCategories } from "@/lib/categories";
+import { useCategories, deleteCategory } from "@/lib/categories";
 import { useProducts } from "@/lib/products";
 import {
   Table,
@@ -22,10 +23,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import type { Category } from "@/types";
 
 export default function CategoriesPage() {
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const { products, loading: productsLoading, error: productsError } = useProducts();
+  const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
   const getProductCount = (categoryName: string) => {
     if (productsLoading) return <Loader2 className="h-4 w-4 animate-spin" />;
@@ -35,7 +51,30 @@ export default function CategoriesPage() {
   const isLoading = categoriesLoading || productsLoading;
   const error = categoriesError || productsError;
 
+  const handleDelete = async () => {
+    if (!categoryToDelete) return;
+    setIsDeleting(true);
+    try {
+        await deleteCategory(categoryToDelete.id);
+        toast({
+            title: "Category Deleted",
+            description: `"${categoryToDelete.name}" has been successfully deleted.`,
+        });
+    } catch (error) {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to delete category.",
+        });
+    } finally {
+        setIsDeleting(false);
+        setCategoryToDelete(null);
+    }
+  };
+
+
   return (
+    <>
     <div>
       <header className="flex items-center justify-between mb-8">
         <div>
@@ -96,11 +135,13 @@ export default function CategoriesPage() {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                      <Link href={`/admin/categories/edit/${category.id}`}>
                                         <Pencil className="mr-2 h-4 w-4" />
                                         Edit
+                                      </Link>
                                     </DropdownMenuItem>
-                                     <DropdownMenuItem className="text-destructive">
+                                     <DropdownMenuItem className="text-destructive" onClick={() => setCategoryToDelete(category)}>
                                         <Trash2 className="mr-2 h-4 w-4" />
                                         Delete
                                     </DropdownMenuItem>
@@ -114,5 +155,23 @@ export default function CategoriesPage() {
         </div>
       )}
     </div>
+    <AlertDialog open={!!categoryToDelete} onOpenChange={(open) => !open && setCategoryToDelete(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the category
+                &quot;{categoryToDelete?.name}&quot; and may affect products in this category.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

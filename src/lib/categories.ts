@@ -1,5 +1,5 @@
 import { Category } from '@/types';
-import { collection, addDoc, getDocs, onSnapshot } from 'firebase/firestore';
+import { collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { useEffect, useState } from 'react';
 
@@ -13,6 +13,26 @@ export const addCategory = async (category: Omit<Category, 'id'>) => {
     console.error('Error adding category: ', error);
     throw new Error('Failed to add category');
   }
+};
+
+export const updateCategory = async (id: string, category: Partial<Category>) => {
+    try {
+        const docRef = doc(db, 'categories', id);
+        await updateDoc(docRef, category);
+    } catch (error) {
+        console.error('Error updating category: ', error);
+        throw new Error('Failed to update category');
+    }
+};
+
+export const deleteCategory = async (id: string) => {
+    try {
+        const docRef = doc(db, 'categories', id);
+        await deleteDoc(docRef);
+    } catch (error) {
+        console.error('Error deleting category: ', error);
+        throw new Error('Failed to delete category');
+    }
 };
 
 export const getCategories = async (): Promise<Category[]> => {

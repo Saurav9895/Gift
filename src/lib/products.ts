@@ -1,6 +1,6 @@
 
 import { Product } from '@/types';
-import { collection, addDoc, getDocs, onSnapshot, doc, getDoc, query, where, limit } from 'firebase/firestore';
+import { collection, addDoc, getDocs, onSnapshot, doc, getDoc, query, where, limit, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { useEffect, useState } from 'react';
 
@@ -14,6 +14,26 @@ export const addProduct = async (product: Omit<Product, 'id'>) => {
     console.error('Error adding product: ', error);
     throw new Error('Failed to add product');
   }
+};
+
+export const updateProduct = async (id: string, product: Partial<Product>) => {
+    try {
+        const docRef = doc(db, 'products', id);
+        await updateDoc(docRef, product);
+    } catch (error) {
+        console.error('Error updating product: ', error);
+        throw new Error('Failed to update product');
+    }
+};
+
+export const deleteProduct = async (id: string) => {
+    try {
+        const docRef = doc(db, 'products', id);
+        await deleteDoc(docRef);
+    } catch (error) {
+        console.error('Error deleting product: ', error);
+        throw new Error('Failed to delete product');
+    }
 };
 
 export const getProducts = async (): Promise<Product[]> => {
