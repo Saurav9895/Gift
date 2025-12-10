@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { Heart, Menu, ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Gift } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,7 @@ import { useAuth } from "@/lib/auth-provider";
 import { useCart } from "@/lib/cart-provider";
 import { useWishlist } from "@/lib/wishlist-provider";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 export default function Header() {
   const { user, userProfile, signOut, userRole } = useAuth();
@@ -101,17 +102,29 @@ export default function Header() {
              {/* Future search bar */}
           </div>
           <nav className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" aria-label="Wishlist" asChild>
-              <Link href="/wishlist" className="relative">
-                <Heart className="h-5 w-5" />
-                {isClient && wishlistCount > 0 && (
-                  <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">
-                    {wishlistCount}
-                  </span>
-                )}
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" aria-label="Shopping Cart" onClick={() => setIsCartOpen(true)} className="relative">
+            <Link
+              href="/wishlist"
+              aria-label="Wishlist"
+              className={cn(
+                buttonVariants({ variant: 'ghost', size: 'icon' }),
+                'relative'
+              )}
+            >
+              <Heart className="h-5 w-5" />
+              {isClient && wishlistCount > 0 && (
+                <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Shopping Cart"
+              onClick={() => setIsCartOpen(true)}
+              className="relative"
+            >
               <ShoppingCart className="h-5 w-5" />
               {isClient && cartCount > 0 && (
                 <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">
@@ -119,6 +132,7 @@ export default function Header() {
                 </span>
               )}
             </Button>
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
