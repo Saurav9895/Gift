@@ -101,18 +101,24 @@ export default function Header() {
              {/* Future search bar */}
           </div>
           <nav className="flex items-center gap-2">
-            <Link href="/wishlist" className="relative">
-              <Button variant="ghost" size="icon" aria-label="Wishlist">
+            <Button variant="ghost" size="icon" aria-label="Wishlist" asChild>
+              <Link href="/wishlist" className="relative">
                 <Heart className="h-5 w-5" />
-              </Button>
-              {isClient && wishlistCount > 0 && <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{wishlistCount}</span>}
-            </Link>
-            <div className="relative">
-              <Button variant="ghost" size="icon" aria-label="Shopping Cart" onClick={() => setIsCartOpen(true)}>
-                <ShoppingCart className="h-5 w-5" />
-              </Button>
-              {isClient && cartCount > 0 && <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{cartCount}</span>}
-            </div>
+                {isClient && wishlistCount > 0 && (
+                  <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" aria-label="Shopping Cart" onClick={() => setIsCartOpen(true)} className="relative">
+              <ShoppingCart className="h-5 w-5" />
+              {isClient && cartCount > 0 && (
+                <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Button>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
