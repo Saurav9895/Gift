@@ -20,7 +20,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
 
   useEffect(() => {
     try {
@@ -40,7 +40,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
 
   const addToCart = (product: Product, quantity: number = 1) => {
-    let itemAdded = false;
     let newItems = cartItems;
 
     const itemExists = cartItems.find(item => item.id === product.id);
@@ -50,7 +49,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       );
     } else {
         newItems = [...cartItems, { ...product, quantity }];
-        itemAdded = true;
     }
     
     setCartItems(newItems);
@@ -85,9 +83,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCartItems([]);
   };
 
+  const handleSetIsCartOpen = (isOpen: boolean) => {
+    if (isOpen) {
+      dismiss();
+    }
+    setIsCartOpen(isOpen);
+  };
+
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
-  const value = { cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, isCartOpen, setIsCartOpen };
+  const value = { cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, isCartOpen, setIsCartOpen: handleSetIsCartOpen };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
