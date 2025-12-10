@@ -149,7 +149,7 @@ export default function Home() {
           <CarouselContent>
             {loading 
               ? Array.from({ length: 8 }).map((_, i) => (
-                  <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                  <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/5">
                     <div className="p-1">
                       <div className="flex flex-col space-y-3">
                         <Skeleton className="h-[250px] w-full rounded-xl" />
@@ -158,7 +158,7 @@ export default function Home() {
                   </CarouselItem>
                 ))
               : products.map((product) => (
-                  <CarouselItem key={product.id} className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                  <CarouselItem key={product.id} className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/5">
                      <div className="p-1">
                         <ProductCard product={product} />
                      </div>
@@ -180,5 +180,3 @@ export default function Home() {
     </>
   );
 }
-
-    

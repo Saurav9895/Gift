@@ -166,7 +166,7 @@ export default function ProductDetailPage() {
                     </header>
                     <CarouselContent>
                         {relatedProducts.map(p => (
-                            <CarouselItem key={p.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                            <CarouselItem key={p.id} className="md:basis-1/2 lg:basis-1/4 xl:basis-1/5">
                                 <div className="p-1">
                                     <ProductCard product={p} />
                                 </div>
