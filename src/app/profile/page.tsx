@@ -70,6 +70,7 @@ export default function ProfilePage() {
   const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<Address | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -84,6 +85,44 @@ export default function ProfilePage() {
       state: "", postalCode: "", country: "", phone: "",
     },
   });
+  
+  const handleFetchLocation = async () => {
+    if (!navigator.geolocation) {
+      toast({ variant: "destructive", title: "Geolocation is not supported by your browser." });
+      return;
+    }
+
+    setIsFetchingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
+          const data = await response.json();
+          const { address } = data;
+          form.reset({
+            addressLine1: `${address.road || ''}${address.house_number ? ' ' + address.house_number : ''}`,
+            city: address.city || address.town || address.village || '',
+            state: address.state || '',
+            postalCode: address.postcode || '',
+            country: address.country || '',
+            name: userProfile?.name || '',
+            phone: '',
+          });
+           toast({ title: "Location fetched!", description: "Address fields have been pre-filled." });
+        } catch (error) {
+          toast({ variant: "destructive", title: "Failed to fetch address details." });
+        } finally {
+            setIsFetchingLocation(false);
+        }
+      },
+      (error) => {
+        toast({ variant: "destructive", title: "Unable to retrieve your location.", description: error.message });
+        setIsFetchingLocation(false);
+      }
+    );
+  };
+
 
   const onAddAddressSubmit = async (values: z.infer<typeof addressSchema>) => {
     if (!user) return;
@@ -264,15 +303,29 @@ export default function ProfilePage() {
       </div>
     </div>
     <Dialog open={isAddAddressOpen} onOpenChange={setIsAddAddressOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md max-h-[90vh]">
             <DialogHeader>
                 <DialogTitle>Add New Address</DialogTitle>
                 <DialogDescription>
-                    Fill in the details below to save a new shipping address.
+                    Fill in the details below or fetch your current location.
                 </DialogDescription>
             </DialogHeader>
+            <div className="overflow-y-auto px-1">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onAddAddressSubmit)} className="space-y-4">
+                    <Button type="button" variant="outline" className="w-full" onClick={handleFetchLocation} disabled={isFetchingLocation}>
+                        {isFetchingLocation ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                        ) : (
+                            <MapPin className="mr-2 h-4 w-4" />
+                        )}
+                        Fetch my current location
+                    </Button>
+                    <div className="relative my-4">
+                        <Separator />
+                        <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-sm text-muted-foreground">OR</span>
+                    </div>
+
                     <FormField control={form.control} name="name" render={({ field }) => (
                         <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
@@ -298,7 +351,7 @@ export default function ProfilePage() {
                     <FormField control={form.control} name="phone" render={({ field }) => (
                         <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
-                    <DialogFooter>
+                    <DialogFooter className="pt-4">
                         <Button type="button" variant="outline" onClick={() => setIsAddAddressOpen(false)}>Cancel</Button>
                         <Button type="submit" disabled={form.formState.isSubmitting}>
                             {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
@@ -307,6 +360,7 @@ export default function ProfilePage() {
                     </DialogFooter>
                 </form>
             </Form>
+            </div>
         </DialogContent>
     </Dialog>
     <AlertDialog open={!!addressToDelete} onOpenChange={(open) => !open && setAddressToDelete(null)}>
@@ -328,3 +382,5 @@ export default function ProfilePage() {
     </>
   );
 }
+
+    
