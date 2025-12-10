@@ -14,7 +14,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 
 const statusSteps = [
-    { name: "Order Placed", status: "Processing", icon: CheckCircle },
     { name: "Processing", status: "Processing", icon: Package },
     { name: "Shipped", status: "Shipped", icon: Truck },
     { name: "Delivered", status: "Delivered", icon: HomeIcon },
@@ -43,7 +42,12 @@ export default function OrderDetailPage() {
     }
 
     const { shippingAddress: address } = order;
-    const currentStatusIndex = statusSteps.findIndex(step => step.status === order.status);
+    
+    let currentStatusIndex = statusSteps.findIndex(step => step.status === order.status);
+    if (order.status === 'Canceled') {
+        currentStatusIndex = -1; // Or handle canceled state separately
+    }
+
 
     return (
         <div className="bg-muted/20">
@@ -55,30 +59,34 @@ export default function OrderDetailPage() {
                             <CardDescription>See the current status of your delivery.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex justify-between items-center">
-                                {statusSteps.map((step, index) => (
-                                    <div key={step.name} className="flex-1 flex flex-col items-center relative">
-                                        <div className={cn(
-                                            "absolute top-1/2 left-0 w-full h-0.5 ",
-                                            index > 0 && index <= currentStatusIndex ? 'bg-primary' : 'bg-border'
-                                        )}></div>
-                                        <div className={cn(
-                                            "absolute top-1/2 right-0 w-full h-0.5",
-                                            index < currentStatusIndex ? 'bg-primary' : 'bg-border'
-                                        )}></div>
-
-                                        <div className={cn(
-                                            "flex items-center justify-center w-10 h-10 rounded-full z-10",
-                                            index <= currentStatusIndex ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                                        )}>
-                                            <step.icon className="h-5 w-5" />
+                             <div className="flex justify-between items-start pt-4">
+                                {statusSteps.map((step, index) => {
+                                    const isActive = index <= currentStatusIndex;
+                                    const isCompleted = index < currentStatusIndex;
+                                    
+                                    return (
+                                        <div key={step.name} className="flex-1 flex flex-col items-center relative">
+                                            {index > 0 && (
+                                                <div className={cn(
+                                                    "absolute top-[18px] right-1/2 w-full h-0.5",
+                                                    isCompleted || isActive ? 'bg-primary' : 'bg-border'
+                                                )}></div>
+                                            )}
+                                            <div className="relative z-10">
+                                                <div className={cn(
+                                                    "flex items-center justify-center w-10 h-10 rounded-full",
+                                                    isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground border-2"
+                                                )}>
+                                                    <step.icon className="h-5 w-5" />
+                                                </div>
+                                            </div>
+                                            <p className={cn(
+                                                "text-xs mt-2 text-center font-semibold",
+                                                !isActive && "text-muted-foreground font-normal"
+                                            )}>{step.name}</p>
                                         </div>
-                                        <p className={cn(
-                                            "text-xs mt-2 text-center",
-                                            index <= currentStatusIndex ? "font-semibold" : "text-muted-foreground"
-                                        )}>{step.name}</p>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </CardContent>
                     </Card>
@@ -120,7 +128,7 @@ export default function OrderDetailPage() {
                                 <CardHeader><CardTitle>Order Summary</CardTitle></CardHeader>
                                 <CardContent className="space-y-3 text-sm">
                                     <div className="flex justify-between"><span>Order Date:</span> <span>{format(order.createdAt.toDate(), "PPP")}</span></div>
-                                    <div className="flex justify-between items-center"><span>Status:</span> <Badge variant={order.status === 'Delivered' ? 'default' : 'secondary'} className="capitalize">{order.status}</Badge></div>
+                                    <div className="flex justify-between items-center"><span>Status:</span> <Badge variant={order.status === 'Delivered' ? 'default' : order.status === 'Canceled' ? 'destructive' : 'secondary'} className="capitalize">{order.status}</Badge></div>
                                     <div className="flex justify-between"><span>Payment:</span> <span className="uppercase">{order.paymentMethod}</span></div>
                                     <Separator />
                                     <div className="flex justify-between"><span>Subtotal:</span> <span>${order.subtotal.toFixed(2)}</span></div>
