@@ -1,3 +1,4 @@
+
 'use client';
 
 import './globals.css';
@@ -38,9 +39,9 @@ export default function RootLayout({
                 {!isAdminPage && <Footer />}
                 <SideCart />
               </div>
-              <Toaster />
             </WishlistProvider>
           </CartProvider>
+          <Toaster />
         </AuthProvider>
       </body>
     </html>
