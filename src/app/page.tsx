@@ -18,10 +18,33 @@ import {
 } from "@/components/ui/carousel"
 import { useCategories } from '@/lib/categories';
 import Image from 'next/image';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Product, Category } from '@/types';
 
 function PopularCategories() {
-  const { categories, loading: categoriesLoading } = useCategories();
-  const isLoading = categoriesLoading;
+  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchHomepageSettings = async () => {
+      setIsLoading(true);
+      const settingsDoc = await getDoc(doc(db, "site-settings", "homepage"));
+      if (settingsDoc.exists()) {
+        const { featuredCategoryIds } = settingsDoc.data();
+        if (featuredCategoryIds && featuredCategoryIds.length > 0) {
+          const categoryPromises = featuredCategoryIds.map((id: string) => getDoc(doc(db, "categories", id)));
+          const categoryDocs = await Promise.all(categoryPromises);
+          const fetchedCategories = categoryDocs.map(d => ({ id: d.id, ...d.data() } as Category));
+          setCategories(fetchedCategories);
+        } else {
+            setCategories([]);
+        }
+      }
+      setIsLoading(false);
+    };
+    fetchHomepageSettings();
+  }, []);
   
   const mainCategory = categories[0];
   const sideCategories = categories.slice(1, 5);
@@ -77,7 +100,28 @@ function PopularCategories() {
 
 
 export default function Home() {
-  const { products, loading } = useProducts({ limit: 8 });
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  
+  React.useEffect(() => {
+    const fetchHomepageSettings = async () => {
+      setLoading(true);
+      const settingsDoc = await getDoc(doc(db, "site-settings", "homepage"));
+      if (settingsDoc.exists()) {
+        const { featuredProductIds } = settingsDoc.data();
+        if (featuredProductIds && featuredProductIds.length > 0) {
+          const productPromises = featuredProductIds.map((id: string) => getDoc(doc(db, "products", id)));
+          const productDocs = await Promise.all(productPromises);
+          const fetchedProducts = productDocs.map(d => ({ id: d.id, ...d.data() } as Product));
+          setProducts(fetchedProducts);
+        } else {
+            setProducts([]);
+        }
+      }
+      setLoading(false);
+    };
+    fetchHomepageSettings();
+  }, []);
 
   return (
     <>
@@ -108,13 +152,13 @@ export default function Home() {
                   <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                     <div className="p-1">
                       <div className="flex flex-col space-y-3">
-                        <Skeleton className="h-[300px] w-full rounded-xl" />
+                        <Skeleton className="h-[250px] w-full rounded-xl" />
                       </div>
                     </div>
                   </CarouselItem>
                 ))
               : products.map((product) => (
-                  <CarouselItem key={product.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                  <CarouselItem key={product.id} className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                      <div className="p-1">
                         <ProductCard product={product} />
                      </div>
@@ -136,5 +180,3 @@ export default function Home() {
     </>
   );
 }
-
-

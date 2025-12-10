@@ -211,6 +211,23 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "items", "shippingAddress", "paymentMethod", "total", "status", "createdAt"]
+    },
+    "HomepageSettings": {
+      "title": "Homepage Settings",
+      "description": "Defines the content to be displayed on the homepage.",
+      "type": "object",
+      "properties": {
+        "featuredProductIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of product IDs to feature on the homepage."
+        },
+        "featuredCategoryIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of category IDs to feature on the homepage."
+        }
+      }
     }
   },
   "auth": {
@@ -252,6 +269,12 @@
             "$ref": "#/entities/Category"
         },
         "description": "Stores category information."
+    },
+    "/site-settings/homepage": {
+        "schema": {
+            "$ref": "#/entities/HomepageSettings"
+        },
+        "description": "Stores settings for the homepage content."
     }
   }
 }
