@@ -87,22 +87,25 @@ export default function Home() {
     <>
       <HeroBanner />
       <PopularCategories />
-      <div className="container mx-auto px-4 py-16">
-        <header className="flex justify-between items-end mb-12">
-            <div>
-                 <p className="text-sm font-bold text-primary mb-2">FEATURED GIFTS</p>
-                 <h2 className="text-3xl md:text-4xl font-headline font-bold text-foreground leading-tight">
-                    Standout Gifts<br/>From Our Collection
-                </h2>
-            </div>
-        </header>
-
+       <div className="container mx-auto px-4 py-16">
         <Carousel
           opts={{
             align: "start",
           }}
           className="w-full"
         >
+           <header className="flex justify-between items-end mb-12">
+              <div>
+                  <p className="text-sm font-bold text-primary mb-2">FEATURED GIFTS</p>
+                  <h2 className="text-3xl md:text-4xl font-headline font-bold text-foreground leading-tight">
+                      Standout Gifts<br/>From Our Collection
+                  </h2>
+              </div>
+              <div className="hidden md:flex gap-2">
+                  <CarouselPrevious className="static translate-y-0" />
+                  <CarouselNext className="static translate-y-0" />
+              </div>
+          </header>
           <CarouselContent>
             {loading 
               ? Array.from({ length: 8 }).map((_, i) => (
@@ -123,10 +126,6 @@ export default function Home() {
                 ))
             }
           </CarouselContent>
-          <div className="hidden md:block">
-            <CarouselPrevious className="absolute top-[-5rem] right-16" />
-            <CarouselNext className="absolute top-[-5rem] right-4" />
-          </div>
         </Carousel>
          <div className="text-center mt-16">
           <Button asChild size="lg">

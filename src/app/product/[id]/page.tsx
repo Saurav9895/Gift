@@ -15,6 +15,13 @@ import { ProductReviews } from "@/components/ProductReviews";
 import ProductCard from "@/components/ProductCard";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -26,7 +33,7 @@ export default function ProductDetailPage() {
 
   const { products: relatedProducts, loading: relatedLoading } = useProducts({
       category: product?.category,
-      limit: 5,
+      limit: 8,
       excludeId: productId,
   });
 
@@ -144,11 +151,25 @@ export default function ProductDetailPage() {
          <div className="bg-muted/50">
             <div className="container mx-auto px-4 py-16">
                  <h2 className="text-3xl font-headline font-bold text-center mb-8">You May Also Like</h2>
-                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                     {relatedProducts.map(p => (
-                         <ProductCard key={p.id} product={p} />
-                     ))}
-                 </div>
+                 <Carousel
+                    opts={{
+                        align: "start",
+                        loop: true,
+                    }}
+                    className="w-full"
+                    >
+                    <CarouselContent>
+                        {relatedProducts.map(p => (
+                            <CarouselItem key={p.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                                <div className="p-1">
+                                    <ProductCard product={p} />
+                                </div>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                    </Carousel>
             </div>
          </div>
     )}
