@@ -30,17 +30,20 @@ export default function ProductCard({ product }: ProductCardProps) {
   const averageRating = reviews.length > 0 
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
     : 0;
+  
+  const originalPrice = product.originalPrice ?? product.price;
+  const discountedPrice = product.discountedPrice ?? product.price;
 
-  const hasDiscount = product.originalPrice > product.discountedPrice;
+  const hasDiscount = originalPrice > discountedPrice;
   const discountPercentage = hasDiscount 
-    ? Math.round(((product.originalPrice - product.discountedPrice) / product.originalPrice) * 100) 
+    ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100) 
     : 0;
 
   return (
     <Card className="w-full overflow-hidden transition-all duration-300 group border flex">
       <Link href={`/product/${product.id}`} className="block w-1/3 relative aspect-square">
         <Image
-            src={product.imageUrl}
+            src={product.imageUrls?.[0] || 'https://picsum.photos/seed/placeholder/300/300'}
             alt={product.name}
             fill
             className="object-cover"
@@ -63,9 +66,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         <div className="flex flex-col items-start gap-2">
             <div className="flex items-baseline gap-2">
-                <p className="text-lg font-bold text-primary">${product.discountedPrice.toFixed(2)}</p>
+                <p className="text-lg font-bold text-primary">${discountedPrice.toFixed(2)}</p>
                 {hasDiscount && (
-                    <p className="text-sm text-muted-foreground line-through">${product.originalPrice.toFixed(2)}</p>
+                    <p className="text-sm text-muted-foreground line-through">${originalPrice.toFixed(2)}</p>
                 )}
             </div>
             <div className="flex items-center gap-2">
