@@ -58,25 +58,25 @@ export default function AllProductsPage() {
         <div className="flex items-center gap-4 overflow-x-auto pb-2">
             <Button
                 variant={!selectedCategory ? 'secondary' : 'outline'}
-                className="rounded-full h-12 px-6"
+                className="rounded-lg h-14 px-6"
                 onClick={() => setSelectedCategory(null)}
             >
                 All
             </Button>
           {categoriesLoading ? (
-             Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-12 w-36 rounded-full" />)
+             Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-14 w-40 rounded-lg" />)
           ) : (
             categories.map(category => (
                 <Button
                     key={category.id}
                     variant={selectedCategory === category.name ? 'secondary' : 'outline'}
                     onClick={() => setSelectedCategory(category.name)}
-                    className="rounded-full flex items-center gap-3 pr-6 h-12 whitespace-nowrap"
+                    className="rounded-lg flex items-center gap-3 h-14 whitespace-nowrap p-2 pr-4"
                 >
-                    <div className="relative h-10 w-10 rounded-full overflow-hidden bg-muted">
+                    <div className="relative h-10 w-10 rounded-md overflow-hidden bg-muted flex-shrink-0">
                        {category.imageUrl && <Image src={category.imageUrl} alt={category.name} fill className="object-cover"/>}
                     </div>
-                   <span className="text-base">{category.name}</span>
+                   <span className="text-base font-medium">{category.name}</span>
                 </Button>
             ))
           )}
