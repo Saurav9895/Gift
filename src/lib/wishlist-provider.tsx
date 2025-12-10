@@ -1,6 +1,7 @@
+
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Product } from '@/types';
 import { useToast } from "@/hooks/use-toast"
 
@@ -17,23 +18,39 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
   const { toast } = useToast();
 
-  const toggleWishlist = (product: Product) => {
-    setWishlistItems(prevItems => {
-      const itemExists = prevItems.find(item => item.id === product.id);
-      if (itemExists) {
-        toast({
-          title: "Removed from wishlist",
-          description: `${product.name} has been removed from your wishlist.`,
-        })
-        return prevItems.filter(item => item.id !== product.id);
-      } else {
-        toast({
-          title: "Added to wishlist",
-          description: `${product.name} has been added to your wishlist.`,
-        })
-        return [...prevItems, product];
+   useEffect(() => {
+    try {
+      const storedWishlist = localStorage.getItem('wishlistItems');
+      if (storedWishlist) {
+        setWishlistItems(JSON.parse(storedWishlist));
       }
-    });
+    } catch (error) {
+      console.error("Failed to parse wishlist items from localStorage", error);
+      setWishlistItems([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('wishlistItems', JSON.stringify(wishlistItems));
+  }, [wishlistItems]);
+
+
+  const toggleWishlist = (product: Product) => {
+    const itemExists = wishlistItems.some(item => item.id === product.id);
+
+    if (itemExists) {
+      setWishlistItems(prevItems => prevItems.filter(item => item.id !== product.id));
+      toast({
+        title: "Removed from wishlist",
+        description: `${product.name} has been removed from your wishlist.`,
+      })
+    } else {
+      setWishlistItems(prevItems => [...prevItems, product]);
+      toast({
+        title: "Added to wishlist",
+        description: `${product.name} has been added to your wishlist.`,
+      })
+    }
   };
   
   const isInWishlist = (productId: string) => {
