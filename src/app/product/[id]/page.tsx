@@ -6,19 +6,22 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-provider";
-import { Loader2, ShoppingCart } from "lucide-react";
+import { Loader2, ShoppingCart, Minus, Plus } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ProductReviews } from "@/components/ProductReviews";
 import ProductCard from "@/components/ProductCard";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
   const productId = typeof id === "string" ? id : "";
   const { product, loading, error } = useProduct(productId);
   const { addToCart } = useCart();
+  const [quantity, setQuantity] = useState(1);
 
   const { products: relatedProducts, loading: relatedLoading } = useProducts({
       category: product?.category,
@@ -32,6 +35,16 @@ export default function ProductDetailPage() {
 
   if (error || !product) {
     return <div className="container mx-auto py-20 text-center">{error || "Product not found."}</div>;
+  }
+
+  const handleQuantityChange = (change: number) => {
+    setQuantity(prev => Math.max(1, prev + change));
+  }
+  
+  const handleAddToCart = () => {
+    if (product) {
+        addToCart(product, quantity);
+    }
   }
 
   const hasDiscount = product.discountedPrice < product.originalPrice;
@@ -76,7 +89,22 @@ export default function ProductDetailPage() {
           <Separator className="my-8" />
           
           <div className="flex items-center gap-4">
-            <Button size="lg" onClick={() => addToCart(product)}>
+            <div className="flex items-center gap-2">
+                <Button variant="outline" size="icon" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
+                    <Minus className="h-4 w-4"/>
+                </Button>
+                <Input 
+                    type="number" 
+                    className="w-16 text-center" 
+                    value={quantity}
+                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                    min="1"
+                />
+                <Button variant="outline" size="icon" onClick={() => handleQuantityChange(1)}>
+                    <Plus className="h-4 w-4"/>
+                </Button>
+            </div>
+            <Button size="lg" onClick={handleAddToCart}>
                 <ShoppingCart className="mr-2 h-5 w-5"/>
                 Add to Cart
             </Button>

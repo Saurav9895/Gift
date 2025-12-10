@@ -62,7 +62,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 <Heart className={cn("h-5 w-5", isWishlisted ? "fill-primary text-primary" : "text-muted-foreground")} />
                 <span className="sr-only">Add to wishlist</span>
             </Button>
-            <Button variant="outline" size="icon" onClick={() => addToCart(product)}>
+            <Button variant="outline" size="icon" onClick={() => addToCart(product, 1)}>
                 <ShoppingCart className="h-5 w-5" />
                 <span className="sr-only">Add to cart</span>
             </Button>
