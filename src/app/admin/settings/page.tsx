@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -188,7 +189,7 @@ export default function SettingsPage() {
   const handleAddProduct = (id: string) => {
     if (!id || form.getValues('featuredProductIds').includes(id)) return;
     if (form.getValues('featuredProductIds').length < 8) {
-        appendProduct({ value: id } as any);
+        appendProduct(id);
     } else {
         toast({ variant: 'destructive', title: "Limit reached", description: "You can only feature up to 8 products."});
     }
@@ -197,7 +198,7 @@ export default function SettingsPage() {
   const handleAddCategory = (id: string) => {
     if (!id || form.getValues('featuredCategoryIds').includes(id)) return;
     if (form.getValues('featuredCategoryIds').length < 5) {
-        appendCategory({ value: id } as any);
+        appendCategory(id);
     } else {
         toast({ variant: 'destructive', title: "Limit reached", description: "You can only feature up to 5 categories."});
     }
@@ -384,5 +385,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    
