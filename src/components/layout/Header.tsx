@@ -94,16 +94,18 @@ export default function Header() {
              {/* Future search bar */}
           </div>
           <nav className="flex items-center gap-2">
-            <Link href="/wishlist">
+            <Link href="/wishlist" className="relative">
               <Button variant="ghost" size="icon" aria-label="Wishlist">
                 <Heart className="h-5 w-5" />
-                {wishlistCount > 0 && <span className="absolute top-1 right-1 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{wishlistCount}</span>}
               </Button>
+              {wishlistCount > 0 && <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{wishlistCount}</span>}
             </Link>
-            <Button variant="ghost" size="icon" aria-label="Shopping Cart" onClick={() => setIsCartOpen(true)}>
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && <span className="absolute top-1 right-1 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{cartCount}</span>}
-            </Button>
+            <div className="relative">
+              <Button variant="ghost" size="icon" aria-label="Shopping Cart" onClick={() => setIsCartOpen(true)}>
+                <ShoppingCart className="h-5 w-5" />
+              </Button>
+              {cartCount > 0 && <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{cartCount}</span>}
+            </div>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
