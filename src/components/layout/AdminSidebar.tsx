@@ -27,7 +27,7 @@ const adminNavLinks = [
   { href: "/admin/categories", label: "Categories", icon: ListTree },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/home-controller", label: "Home Page", icon: Settings },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 function NavContent() {
@@ -149,3 +149,5 @@ export default function AdminSidebar() {
         </>
     );
 }
+
+    

@@ -212,9 +212,20 @@
       },
       "required": ["userId", "items", "shippingAddress", "paymentMethod", "total", "status", "createdAt"]
     },
-    "HomepageSettings": {
-      "title": "Homepage Settings",
-      "description": "Defines the content to be displayed on the homepage.",
+    "PromoCode": {
+        "title": "Promo Code",
+        "description": "Represents a promotional code for discounts.",
+        "type": "object",
+        "properties": {
+            "code": { "type": "string" },
+            "type": { "type": "string", "enum": ["Percentage", "Fixed", "Free Delivery"] },
+            "value": { "type": "number" }
+        },
+        "required": ["code", "type", "value"]
+    },
+    "StoreSettings": {
+      "title": "Store Settings",
+      "description": "Defines the global settings for the store.",
       "type": "object",
       "properties": {
         "featuredProductIds": {
@@ -226,6 +237,16 @@
           "type": "array",
           "items": { "type": "string" },
           "description": "List of category IDs to feature on the homepage."
+        },
+        "deliveryFee": {
+            "type": "number"
+        },
+        "freeDeliveryThreshold": {
+            "type": "number"
+        },
+        "promoCodes": {
+            "type": "array",
+            "items": { "$ref": "#/entities/PromoCode" }
         }
       }
     }
@@ -270,11 +291,13 @@
         },
         "description": "Stores category information."
     },
-    "/site-settings/homepage": {
+    "/site-settings/store": {
         "schema": {
-            "$ref": "#/entities/HomepageSettings"
+            "$ref": "#/entities/StoreSettings"
         },
-        "description": "Stores settings for the homepage content."
+        "description": "Stores global settings for the store."
     }
   }
 }
+
+    
