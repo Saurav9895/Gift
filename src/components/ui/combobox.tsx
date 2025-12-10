@@ -42,9 +42,7 @@ export function Combobox({ options, value, onChange, placeholder, searchPlacehol
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value
-            ? options.find((option) => option.value === value)?.label
-            : placeholder || "Select option..."}
+          {placeholder || "Select option..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -59,8 +57,8 @@ export function Combobox({ options, value, onChange, placeholder, searchPlacehol
                     key={option.value}
                     value={option.value}
                     onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue)
-                    setOpen(false)
+                      onChange(currentValue);
+                      setOpen(false);
                     }}
                     className="flex items-center gap-2"
                 >
