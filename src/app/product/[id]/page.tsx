@@ -81,15 +81,18 @@ export default function ProductDetailPage() {
                 Add to Cart
             </Button>
           </div>
-          <Separator className="my-8" />
-          <div>
-            <h3 className="text-xl font-headline font-bold mb-4">About this Gift</h3>
-            <div className="prose prose-sm max-w-none text-muted-foreground">
-                 <p>{product.longDescription}</p>
-            </div>
-          </div>
         </div>
       </div>
+      
+       <Separator className="my-16" />
+
+        <div>
+            <h3 className="text-2xl font-headline font-bold mb-4">About this Gift</h3>
+            <div className="prose prose-lg max-w-none text-muted-foreground">
+                 <p>{product.longDescription}</p>
+            </div>
+        </div>
+
        <Separator className="my-16" />
 
        <ProductReviews productId={productId} />
