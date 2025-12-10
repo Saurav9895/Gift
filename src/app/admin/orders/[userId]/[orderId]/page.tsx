@@ -138,7 +138,7 @@ export default function OrderDetailPage() {
                     <CardContent className="space-y-4">
                         <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Order Placed</span>
-                            <span>{format(order.createdAt.toDate(), "PPP")}</span>
+                            <span>{order.createdAt ? format(order.createdAt, "PPP") : 'N/A'}</span>
                         </div>
                          <div className="flex justify-between items-center text-sm">
                             <span className="text-muted-foreground">Status</span>

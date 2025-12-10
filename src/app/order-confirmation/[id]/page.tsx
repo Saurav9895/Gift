@@ -60,7 +60,7 @@ export default function OrderConfirmationPage() {
                             </div>
                             <div className="space-y-2">
                                 <h3 className="font-semibold text-base">Order Summary</h3>
-                                <div className="flex justify-between"><span>Order Date:</span> <span>{format(order.createdAt.toDate(), "PPP")}</span></div>
+                                <div className="flex justify-between"><span>Order Date:</span> <span>{order.createdAt ? format(order.createdAt, "PPP") : 'N/A'}</span></div>
                                 <div className="flex justify-between"><span>Payment Method:</span> <span className="uppercase">{order.paymentMethod}</span></div>
                                 <div className="flex justify-between"><span>Status:</span> <span>{order.status}</span></div>
                             </div>
@@ -108,7 +108,7 @@ export default function OrderConfirmationPage() {
                                 <Link href="/">Continue Shopping</Link>
                             </Button>
                              <Button variant="outline" asChild>
-                                <Link href="/profile">View My Orders</Link>
+                                <Link href="/profile/orders">View My Orders</Link>
                             </Button>
                         </div>
                     </CardContent>

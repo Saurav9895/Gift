@@ -120,7 +120,7 @@ export default function UserDetailPage() {
                                     {orders.map((order) => (
                                         <TableRow key={order.id} onClick={() => router.push(`/admin/orders/${order.userId}/${order.id}`)} className="cursor-pointer">
                                             <TableCell className="font-medium">#{order.id.substring(0, 7)}</TableCell>
-                                            <TableCell>{format(order.createdAt.toDate(), "PPP")}</TableCell>
+                                            <TableCell>{order.createdAt ? format(order.createdAt, "PPP") : 'N/A'}</TableCell>
                                             <TableCell>
                                                 <Badge variant={order.status === 'Delivered' ? 'default' : order.status === 'Canceled' ? 'destructive' : 'secondary'} className="capitalize">{order.status}</Badge>
                                             </TableCell>

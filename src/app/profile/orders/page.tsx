@@ -88,7 +88,7 @@ export default function MyOrdersPage() {
                                            #{order.id.substring(0, 7)}
                                         </Link>
                                     </TableCell>
-                                    <TableCell>{format(order.createdAt.toDate(), "PPP")}</TableCell>
+                                    <TableCell>{order.createdAt ? format(order.createdAt, "PPP") : 'N/A'}</TableCell>
                                     <TableCell>
                                         <Badge 
                                             variant={getBadgeVariant(order.status)}

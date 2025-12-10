@@ -128,7 +128,7 @@ export default function OrderDetailPage() {
                              <Card>
                                 <CardHeader><CardTitle>Order Summary</CardTitle></CardHeader>
                                 <CardContent className="space-y-3 text-sm">
-                                    <div className="flex justify-between"><span>Order Date:</span> <span>{format(order.createdAt.toDate(), "PPP")}</span></div>
+                                    <div className="flex justify-between"><span>Order Date:</span> <span>{order.createdAt ? format(order.createdAt, "PPP") : 'N/A'}</span></div>
                                     <div className="flex justify-between items-center"><span>Status:</span> <Badge variant={order.status === 'Delivered' ? 'default' : order.status === 'Canceled' ? 'destructive' : 'secondary'} className="capitalize">{order.status}</Badge></div>
                                     <div className="flex justify-between"><span>Payment:</span> <span className="uppercase">{order.paymentMethod}</span></div>
                                     <Separator />

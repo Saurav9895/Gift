@@ -80,7 +80,7 @@ export default function OrdersPage() {
                     <TableRow key={order.id} onClick={() => handleRowClick(order)} className="cursor-pointer">
                         <TableCell className="font-medium">#{order.id.substring(0, 7)}</TableCell>
                         <TableCell>{getUserName(order.userId)}</TableCell>
-                        <TableCell>{format(order.createdAt.toDate(), "PPP")}</TableCell>
+                        <TableCell>{order.createdAt ? format(order.createdAt, "PPP") : 'N/A'}</TableCell>
                         <TableCell>
                             <Badge 
                                 variant={getBadgeVariant(order.status)}

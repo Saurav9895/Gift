@@ -181,7 +181,7 @@ export default function CheckoutPage() {
             subtotal,
             deliveryFee,
             total,
-            status: "Processing",
+            status: "Processing" as const,
         };
         const orderId = await createOrder(orderData);
         clearCart();
@@ -395,5 +395,3 @@ export default function CheckoutPage() {
     </>
   );
 }
-
-    

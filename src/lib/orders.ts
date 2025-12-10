@@ -44,7 +44,14 @@ export const useOrder = (userId: string | undefined, orderId: string) => {
         const unsubscribe = onSnapshot(docRef, 
             (docSnap) => {
                 if (docSnap.exists()) {
-                    setOrder({ id: docSnap.id, ...docSnap.data() } as Order);
+                    const data = docSnap.data();
+                    // Convert Firestore Timestamp to Date
+                    const orderData = { 
+                        id: docSnap.id, 
+                        ...data,
+                        createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date()
+                    } as Order;
+                    setOrder(orderData);
                 } else {
                     setError("Order not found.");
                 }
@@ -80,7 +87,14 @@ export const useOrders = (userId?: string) => {
 
         const unsubscribe = onSnapshot(q,
             (querySnapshot) => {
-                const ordersList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+                const ordersList = querySnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return { 
+                        id: doc.id, 
+                        ...data,
+                        createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date()
+                    } as Order
+                });
                 setOrders(ordersList);
                 setLoading(false);
             },
@@ -106,7 +120,14 @@ export const useAdminOrders = () => {
         const ordersQuery = query(collectionGroup(db, 'orders'));
         const unsubscribe = onSnapshot(ordersQuery,
             (querySnapshot) => {
-                const ordersList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+                const ordersList = querySnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return { 
+                        id: doc.id, 
+                        ...data,
+                        createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date()
+                    } as Order
+                });
                 setOrders(ordersList);
                 setLoading(false);
             },
