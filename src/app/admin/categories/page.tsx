@@ -54,12 +54,16 @@ export default function CategoriesPage() {
 
   const handleDelete = async () => {
     if (!categoryToDelete) return;
+    
+    const categoryName = categoryToDelete.name;
+    const categoryId = categoryToDelete.id;
+
     setIsDeleting(true);
     try {
-        await deleteCategory(categoryToDelete.id);
+        await deleteCategory(categoryId);
         toast({
             title: "Category Deleted",
-            description: `"${categoryToDelete.name}" has been successfully deleted.`,
+            description: `"${categoryName}" has been successfully deleted.`,
         });
     } catch (error) {
         toast({
