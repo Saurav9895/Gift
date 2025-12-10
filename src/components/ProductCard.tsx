@@ -45,7 +45,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <Link href={`/product/${product.id}`} className="block w-1/3 relative aspect-square">
         <Image
             src={product.imageUrls?.[0] || 'https://picsum.photos/seed/placeholder/300/300'}
-            alt={product.name}
+            alt={product.name || "Product image"}
             fill
             className="object-cover"
         />
