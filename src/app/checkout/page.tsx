@@ -157,11 +157,14 @@ export default function CheckoutPage() {
         return;
     }
 
-    const selectedAddress = addresses.find(addr => addr.id === selectedAddressId);
-    if (!selectedAddress) {
+    const selectedAddressWithId = addresses.find(addr => addr.id === selectedAddressId);
+    if (!selectedAddressWithId) {
         toast({ variant: "destructive", title: "Invalid shipping address."});
         return;
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...shippingAddress } = selectedAddressWithId;
 
     setIsPlacingOrder(true);
     try {
@@ -176,7 +179,7 @@ export default function CheckoutPage() {
         const orderData = {
             userId: user.uid,
             items: orderItems,
-            shippingAddress: selectedAddress as Address,
+            shippingAddress: shippingAddress as Omit<Address, 'id'>,
             paymentMethod: selectedPaymentMethod,
             subtotal,
             deliveryFee,

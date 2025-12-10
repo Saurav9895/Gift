@@ -67,7 +67,7 @@ export interface Order {
     id: string;
     userId: string;
     items: OrderItem[];
-    shippingAddress: Address;
+    shippingAddress: Omit<Address, 'id'>;
     paymentMethod: string;
     subtotal: number;
     deliveryFee: number;
