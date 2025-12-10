@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useCart } from "@/lib/cart-provider";
@@ -9,6 +8,7 @@ import Image from "next/image";
 import { Plus, Minus, X } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
