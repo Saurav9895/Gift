@@ -58,25 +58,25 @@ export default function AllProductsPage() {
         <div className="flex items-center gap-4 overflow-x-auto pb-2">
             <Button
                 variant={!selectedCategory ? 'secondary' : 'outline'}
-                className="rounded-full"
+                className="rounded-full h-12 px-6"
                 onClick={() => setSelectedCategory(null)}
             >
                 All
             </Button>
           {categoriesLoading ? (
-             Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10 w-32 rounded-full" />)
+             Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-12 w-36 rounded-full" />)
           ) : (
             categories.map(category => (
                 <Button
                     key={category.id}
                     variant={selectedCategory === category.name ? 'secondary' : 'outline'}
                     onClick={() => setSelectedCategory(category.name)}
-                    className="rounded-full flex items-center gap-2 pr-4 whitespace-nowrap"
+                    className="rounded-full flex items-center gap-3 pr-6 h-12 whitespace-nowrap"
                 >
-                    <div className="relative h-8 w-8 rounded-full overflow-hidden bg-muted">
+                    <div className="relative h-10 w-10 rounded-full overflow-hidden bg-muted">
                        {category.imageUrl && <Image src={category.imageUrl} alt={category.name} fill className="object-cover"/>}
                     </div>
-                   <span>{category.name}</span>
+                   <span className="text-base">{category.name}</span>
                 </Button>
             ))
           )}
@@ -88,14 +88,14 @@ export default function AllProductsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input 
               placeholder="Search products..." 
-              className="pl-10" 
+              className="pl-10 h-11" 
               value={searchTerm}
               onChange={handleSearchChange}
             />
           </div>
           <div className="flex items-center gap-4">
             <Select value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
-                <SelectTrigger className="w-full md:w-[180px]">
+                <SelectTrigger className="w-full md:w-[180px] h-11">
                     <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -106,10 +106,10 @@ export default function AllProductsPage() {
                 </SelectContent>
             </Select>
              <div className="hidden md:flex items-center gap-1 bg-muted p-1 rounded-md">
-                <Button variant="ghost" size="icon" className="bg-background shadow-sm h-8 w-8">
+                <Button variant="ghost" size="icon" className="bg-background shadow-sm h-9 w-9">
                     <LayoutGrid className="h-5 w-5"/>
                 </Button>
-                 <Button variant="ghost" size="icon" className="h-8 w-8">
+                 <Button variant="ghost" size="icon" className="h-9 w-9">
                     <List className="h-5 w-5"/>
                 </Button>
             </div>
