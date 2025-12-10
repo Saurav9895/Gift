@@ -17,20 +17,11 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { useCategories } from '@/lib/categories';
-import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
 
 function PopularCategories() {
   const { categories, loading: categoriesLoading } = useCategories();
-  const { products, loading: productsLoading } = useProducts();
-
-  const getProductCount = (categoryName: string) => {
-    if (productsLoading) return 0;
-    return products.filter(p => p.category === categoryName).length;
-  }
-
-  const isLoading = categoriesLoading || productsLoading;
+  const isLoading = categoriesLoading;
   
   const mainCategory = categories[0];
   const sideCategories = categories.slice(1, 5);
@@ -43,13 +34,13 @@ function PopularCategories() {
           Popular Categories
         </h2>
       </header>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-[450px] md:h-[620px]">
         {isLoading ? (
-           Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-64 rounded-lg"/>)
+           Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-full w-full rounded-lg"/>)
         ) : (
           <>
             {mainCategory && (
-                 <Link href={`/products?category=${mainCategory.name}`} className="lg:col-span-1 md:col-span-2 col-span-1 row-span-2 group relative rounded-lg overflow-hidden min-h-[300px] md:min-h-0">
+                 <Link href={`/products?category=${mainCategory.name}`} className="lg:col-span-2 col-span-1 md:row-span-2 group relative rounded-lg overflow-hidden">
                     <Image src={mainCategory.imageUrl} alt={mainCategory.name} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                     <div className="absolute bottom-6 left-6 text-white">
@@ -59,9 +50,9 @@ function PopularCategories() {
                 </Link>
             )}
             {sideCategories.map(category => (
-                <Link href={`/products?category=${category.name}`} key={category.id} className="col-span-1 group relative rounded-lg overflow-hidden min-h-[200px]">
+                <Link href={`/products?category=${category.name}`} key={category.id} className="col-span-1 group relative rounded-lg overflow-hidden">
                     <Image src={category.imageUrl} alt={category.name} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                     <div className="absolute bottom-4 left-4 text-white">
                         <h3 className="text-lg font-bold font-headline">{category.name}</h3>
                     </div>
@@ -135,3 +126,4 @@ export default function Home() {
     </>
   );
 }
+
