@@ -79,9 +79,8 @@ export default function SideCart() {
               </div>
             </div>
             <SheetFooter className="mt-auto flex-col space-y-4 border-t bg-background p-6">
-              <div className="flex justify-between font-semibold">
-                <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+              <div className="flex justify-end font-semibold">
+                <span>Subtotal: ${subtotal.toFixed(2)}</span>
               </div>
               <Button asChild className="w-full" size="lg" onClick={() => setIsCartOpen(false)}>
                 <Link href="/cart">Proceed to Checkout</Link>
