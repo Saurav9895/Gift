@@ -9,11 +9,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetFooter,
-  SheetClose,
 } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
-import { Minus, Plus, Trash2, X } from 'lucide-react';
+import { Minus, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SideCart() {
