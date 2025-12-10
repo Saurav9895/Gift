@@ -5,7 +5,7 @@ import { useCart } from "@/lib/cart-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { Plus, Minus, MapPin } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -22,8 +22,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardFooter,
-  CardDescription
 } from "@/components/ui/card";
 
 
@@ -54,61 +52,20 @@ export default function CartPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Shipping Address</CardTitle>
-            <Button variant="outline" size="sm">
-              <MapPin className="mr-2 h-4 w-4" />
-              Select on Map
-            </Button>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
                 <Label>Saved Addresses</Label>
                 <Select>
                     <SelectTrigger>
-                        <SelectValue placeholder="Saurav Yadav, 4th Cross Road" />
+                        <SelectValue placeholder="Select a saved address" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="addr1">Saurav Yadav, 4th Cross Road</SelectItem>
+                        <SelectItem value="addr1">Saurav Yadav, 4th Cross Road, SI shelter flat 504, Bengaluru, KA 560016, India</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input id="fullName" placeholder="Saurav Yadav" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" placeholder="9842483338" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="apartment">Apartment, suite, etc.</Label>
-              <Input id="apartment" placeholder="SI shelter flat 504" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="street">Street Address</Label>
-              <Input id="street" placeholder="4th Cross Road" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input id="city" placeholder="Bengaluru" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="state">State / Province</Label>
-                <Input id="state" placeholder="KA" />
-              </div>
-            </div>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="zip">ZIP / Postal Code</Label>
-                <Input id="zip" placeholder="560016" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="country">Country</Label>
-                <Input id="country" placeholder="India" />
-              </div>
-            </div>
+            <Button variant="outline">Add New Address</Button>
           </CardContent>
         </Card>
 

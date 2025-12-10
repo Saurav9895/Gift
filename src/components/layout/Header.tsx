@@ -102,9 +102,8 @@ export default function Header() {
              {/* Future search bar */}
           </div>
           <nav className="flex items-center gap-2">
-            <Link
+             <Link
               href="/wishlist"
-              aria-label="Wishlist"
               className={cn(
                 buttonVariants({ variant: 'ghost', size: 'icon' }),
                 'relative'
@@ -116,14 +115,15 @@ export default function Header() {
                   {wishlistCount}
                 </span>
               )}
+               <span className="sr-only">Wishlist</span>
             </Link>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Shopping Cart"
+            <button
               onClick={() => setIsCartOpen(true)}
-              className="relative"
+              className={cn(
+                buttonVariants({ variant: 'ghost', size: 'icon' }),
+                'relative'
+              )}
             >
               <ShoppingCart className="h-5 w-5" />
               {isClient && cartCount > 0 && (
@@ -131,7 +131,8 @@ export default function Header() {
                   {cartCount}
                 </span>
               )}
-            </Button>
+              <span className="sr-only">Shopping Cart</span>
+            </button>
 
             {user ? (
               <DropdownMenu>
@@ -145,6 +146,12 @@ export default function Header() {
                     {userProfile?.name || "My Account"}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                      <Link href="/profile">
+                        <UserIcon className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
                   {userRole === 'admin' && (
                     <DropdownMenuItem asChild>
                       <Link href="/admin">
