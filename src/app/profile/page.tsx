@@ -359,55 +359,56 @@ export default function ProfilePage() {
 
     {/* Add Address Dialog */}
     <Dialog open={isAddAddressOpen} onOpenChange={setIsAddAddressOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md flex flex-col max-h-[80vh]">
             <DialogHeader>
                 <DialogTitle>Add New Address</DialogTitle>
                 <DialogDescription>
                     Fill in the details below or fetch your current location.
                 </DialogDescription>
             </DialogHeader>
-            <div className="py-4">
             <Form {...addressForm}>
-                <form onSubmit={addressForm.handleSubmit(onAddAddressSubmit)} className="space-y-4">
-                    <Button type="button" variant="outline" className="w-full" onClick={handleFetchLocation} disabled={isFetchingLocation}>
-                        {isFetchingLocation ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
-                        ) : (
-                            <MapPin className="mr-2 h-4 w-4" />
-                        )}
-                        Fetch my current location
-                    </Button>
-                    <div className="relative my-4">
-                        <Separator />
-                        <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-sm text-muted-foreground">OR</span>
-                    </div>
+                <form onSubmit={addressForm.handleSubmit(onAddAddressSubmit)} className="flex-1 flex flex-col min-h-0">
+                    <div className="flex-1 overflow-y-auto px-1 py-4 space-y-4">
+                        <Button type="button" variant="outline" className="w-full" onClick={handleFetchLocation} disabled={isFetchingLocation}>
+                            {isFetchingLocation ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                            ) : (
+                                <MapPin className="mr-2 h-4 w-4" />
+                            )}
+                            Fetch my current location
+                        </Button>
+                        <div className="relative my-4">
+                            <Separator />
+                            <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-sm text-muted-foreground">OR</span>
+                        </div>
 
-                    <FormField control={addressForm.control} name="name" render={({ field }) => (
-                        <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <FormField control={addressForm.control} name="addressLine1" render={({ field }) => (
-                        <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField control={addressForm.control} name="city" render={({ field }) => (
-                            <FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormField control={addressForm.control} name="name" render={({ field }) => (
+                            <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
-                        <FormField control={addressForm.control} name="state" render={({ field }) => (
-                            <FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormField control={addressForm.control} name="addressLine1" render={({ field }) => (
+                            <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField control={addressForm.control} name="city" render={({ field }) => (
+                                <FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={addressForm.control} name="state" render={({ field }) => (
+                                <FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField control={addressForm.control} name="postalCode" render={({ field }) => (
+                                <FormItem><FormLabel>Postal Code</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={addressForm.control} name="country" render={({ field }) => (
+                                <FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                        </div>
+                        <FormField control={addressForm.control} name="phone" render={({ field }) => (
+                            <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                     </div>
-                     <div className="grid grid-cols-2 gap-4">
-                        <FormField control={addressForm.control} name="postalCode" render={({ field }) => (
-                            <FormItem><FormLabel>Postal Code</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        <FormField control={addressForm.control} name="country" render={({ field }) => (
-                            <FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                    </div>
-                    <FormField control={addressForm.control} name="phone" render={({ field }) => (
-                        <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <DialogFooter className="pt-4">
+                    <DialogFooter className="pt-4 border-t mt-auto">
                         <Button type="button" variant="outline" onClick={() => setIsAddAddressOpen(false)}>Cancel</Button>
                         <Button type="submit" disabled={addressForm.formState.isSubmitting}>
                             {addressForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
@@ -416,7 +417,6 @@ export default function ProfilePage() {
                     </DialogFooter>
                 </form>
             </Form>
-            </div>
         </DialogContent>
     </Dialog>
 
