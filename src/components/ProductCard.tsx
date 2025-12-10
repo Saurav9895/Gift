@@ -31,11 +31,12 @@ export default function ProductCard({ product }: ProductCardProps) {
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
     : 0;
   
-  const originalPrice = product.originalPrice ?? product.price;
-  const discountedPrice = typeof product.discountedPrice === 'number' ? product.discountedPrice : product.price;
+  const price = typeof product.price === 'number' ? product.price : 0;
+  const discountedPrice = typeof product.discountedPrice === 'number' ? product.discountedPrice : price;
+  const originalPrice = typeof product.originalPrice === 'number' ? product.originalPrice : price;
 
   const hasDiscount = originalPrice > discountedPrice;
-  const discountPercentage = hasDiscount 
+  const discountPercentage = hasDiscount && originalPrice > 0
     ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100) 
     : 0;
 
@@ -85,4 +86,3 @@ export default function ProductCard({ product }: ProductCardProps) {
     </Card>
   );
 }
-
