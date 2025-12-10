@@ -150,7 +150,6 @@ export default function ProductDetailPage() {
     {!relatedLoading && relatedProducts.length > 0 && (
          <div className="bg-muted/50">
             <div className="container mx-auto px-4 py-16">
-                 <h2 className="text-3xl font-headline font-bold text-center mb-8">You May Also Like</h2>
                  <Carousel
                     opts={{
                         align: "start",
@@ -158,6 +157,13 @@ export default function ProductDetailPage() {
                     }}
                     className="w-full"
                     >
+                    <header className="flex justify-between items-end mb-8">
+                        <h2 className="text-3xl font-headline font-bold">You May Also Like</h2>
+                        <div className="hidden md:flex gap-2">
+                            <CarouselPrevious className="static translate-y-0" />
+                            <CarouselNext className="static translate-y-0" />
+                        </div>
+                    </header>
                     <CarouselContent>
                         {relatedProducts.map(p => (
                             <CarouselItem key={p.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
@@ -167,9 +173,11 @@ export default function ProductDetailPage() {
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                    </Carousel>
+                    <div className="flex md:hidden gap-2 mt-4 justify-center">
+                        <CarouselPrevious />
+                        <CarouselNext />
+                    </div>
+                </Carousel>
             </div>
          </div>
     )}
