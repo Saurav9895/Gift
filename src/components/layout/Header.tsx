@@ -23,7 +23,7 @@ import { useWishlist } from "@/lib/wishlist-provider";
 
 export default function Header() {
   const { user, userProfile, signOut, userRole } = useAuth();
-  const { cartCount } = useCart();
+  const { cartCount, setIsCartOpen } = useCart();
   const { wishlistCount } = useWishlist();
 
   const navLinks = [
@@ -100,12 +100,10 @@ export default function Header() {
                 {wishlistCount > 0 && <span className="absolute top-1 right-1 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{wishlistCount}</span>}
               </Button>
             </Link>
-            <Link href="/cart">
-              <Button variant="ghost" size="icon" aria-label="Shopping Cart">
-                <ShoppingCart className="h-5 w-5" />
-                 {cartCount > 0 && <span className="absolute top-1 right-1 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{cartCount}</span>}
-              </Button>
-            </Link>
+            <Button variant="ghost" size="icon" aria-label="Shopping Cart" onClick={() => setIsCartOpen(true)}>
+              <ShoppingCart className="h-5 w-5" />
+              {cartCount > 0 && <span className="absolute top-1 right-1 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{cartCount}</span>}
+            </Button>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

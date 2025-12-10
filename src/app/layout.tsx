@@ -9,6 +9,7 @@ import { WishlistProvider } from '@/lib/wishlist-provider';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { usePathname } from 'next/navigation';
+import SideCart from '@/components/layout/SideCart';
 
 export default function RootLayout({
   children,
@@ -35,6 +36,7 @@ export default function RootLayout({
                 {!isAdminPage && <Header />}
                 <main className="flex-1">{children}</main>
                 {!isAdminPage && <Footer />}
+                <SideCart />
               </div>
               <Toaster />
             </WishlistProvider>
