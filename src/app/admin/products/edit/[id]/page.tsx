@@ -24,6 +24,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { ImageUploader } from "@/components/ImageUploader";
 import { useParams, useRouter } from "next/navigation";
 import { Loader2, PlusCircle, Trash2 } from "lucide-react";
+import { format, addDays } from "date-fns";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Product name must be at least 2 characters." }),
@@ -68,6 +69,8 @@ export default function EditProductPage() {
     name: "imageUrls"
   });
 
+  const deliveryTime = form.watch("deliveryTime");
+
   useEffect(() => {
     if (product) {
       form.reset({
@@ -80,10 +83,32 @@ export default function EditProductPage() {
         imageUrls: product.imageUrls,
         category: product.category,
         deliveryTime: product.deliveryTime || "3-4 Days",
-        estimatedArrival: product.estimatedArrival || "10-12 Oct 2024",
+        estimatedArrival: product.estimatedArrival || "",
       });
     }
   }, [product, form]);
+
+  useEffect(() => {
+    if (deliveryTime) {
+        const days = deliveryTime.match(/\d+/g);
+        if (days && days.length > 0) {
+            const now = new Date();
+            const startDay = addDays(now, parseInt(days[0]));
+            const endDay = days.length > 1 ? addDays(now, parseInt(days[1])) : startDay;
+            
+            const formatRange = (start: Date, end: Date) => {
+                const startMonth = format(start, 'MMM');
+                const endMonth = format(end, 'MMM');
+                if (startMonth === endMonth) {
+                    return `${format(start, 'd')}-${format(end, 'd MMM yyyy')}`;
+                }
+                return `${format(start, 'd MMM')} - ${format(end, 'd MMM yyyy')}`;
+            };
+            
+            form.setValue("estimatedArrival", formatRange(startDay, endDay));
+        }
+    }
+  }, [deliveryTime, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -234,7 +259,7 @@ export default function EditProductPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Estimated Arrival</FormLabel>
-                      <FormControl><Input placeholder="e.g., 10-12 Oct 2024" {...field} /></FormControl>
+                      <FormControl><Input placeholder="e.g., 10-12 Oct 2024" {...field} readOnly className="bg-muted" /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
