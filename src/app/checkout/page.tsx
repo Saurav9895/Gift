@@ -49,7 +49,7 @@ import {
 } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { createOrder } from "@/lib/orders";
-import type { Address } from "@/types";
+import type { Address, OrderItem } from "@/types";
 
 const addressSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -165,10 +165,18 @@ export default function CheckoutPage() {
 
     setIsPlacingOrder(true);
     try {
+        const orderItems: OrderItem[] = cartItems.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            imageUrl: item.imageUrl,
+        }));
+
         const orderData = {
             userId: user.uid,
-            items: cartItems,
-            shippingAddress: selectedAddress as Address, // The find check is above
+            items: orderItems,
+            shippingAddress: selectedAddress as Address,
             paymentMethod: selectedPaymentMethod,
             subtotal,
             deliveryFee,
@@ -387,3 +395,5 @@ export default function CheckoutPage() {
     </>
   );
 }
+
+    
