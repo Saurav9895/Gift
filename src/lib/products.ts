@@ -3,7 +3,7 @@
 import { Product } from '@/types';
 import { collection, addDoc, getDocs, onSnapshot, doc, getDoc, query, where, limit, updateDoc, deleteDoc, orderBy, QueryConstraint } from 'firebase/firestore';
 import { db } from './firebase';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 const productsCollection = collection(db, 'products');
 
@@ -76,41 +76,17 @@ export const getProductById = async (id: string): Promise<Product | null> => {
 export type SortOption = "name-asc" | "name-desc" | "price-asc" | "price-desc";
 
 export const useProducts = (options?: { category?: string; limit?: number; excludeId?: string; search?: string; sort?: SortOption }) => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const constraints: QueryConstraint[] = [];
-
-    if (options?.category) {
-        constraints.push(where('category', '==', options.category));
-    }
-    
-    if (options?.sort) {
-        const [field, direction] = options.sort.split('-');
-        constraints.push(orderBy(field === 'name' ? 'name' : 'price', direction as 'asc' | 'desc'));
-    }
-    if (options?.limit) {
-        constraints.push(limit(options.limit));
-    }
-
-    const q = query(productsCollection, ...constraints);
+    const q = query(productsCollection);
 
     const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
-        let productsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
-        
-        if (options?.search) {
-            const searchTerm = options.search.toLowerCase();
-            productsList = productsList.filter(p => p.name.toLowerCase().includes(searchTerm));
-        }
-
-        if (options?.excludeId) {
-            productsList = productsList.filter(p => p.id !== options.excludeId);
-        }
-
-        setProducts(productsList);
+        const productsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+        setAllProducts(productsList);
         setLoading(false);
       },
       (err) => {
@@ -121,7 +97,41 @@ export const useProducts = (options?: { category?: string; limit?: number; exclu
     );
 
     return () => unsubscribe();
-  }, [options?.category, options?.limit, options?.excludeId, options?.search, options?.sort]);
+  }, []);
+
+  const products = useMemo(() => {
+    let filteredProducts = [...allProducts];
+
+    if (options?.category) {
+        filteredProducts = filteredProducts.filter(p => p.category === options.category);
+    }
+
+    if (options?.search) {
+        const searchTerm = options.search.toLowerCase();
+        filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
+    }
+    
+    if (options?.sort) {
+        const [field, direction] = options.sort.split('-');
+        filteredProducts.sort((a, b) => {
+            const valA = field === 'name' ? a.name : a.price;
+            const valB = field === 'name' ? b.name : b.price;
+            if (valA < valB) return direction === 'asc' ? -1 : 1;
+            if (valA > valB) return direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+
+    if (options?.excludeId) {
+        filteredProducts = filteredProducts.filter(p => p.id !== options.excludeId);
+    }
+    
+    if (options?.limit) {
+        return filteredProducts.slice(0, options.limit);
+    }
+
+    return filteredProducts;
+  }, [allProducts, options]);
 
   return { products, loading, error };
 }
@@ -160,3 +170,4 @@ export const useProduct = (id: string) => {
 
     return { product, loading, error };
 };
+
