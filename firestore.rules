@@ -14,10 +14,10 @@ service cloud.firestore {
       }
 
       // Users can create and read their own orders.
+      // Admins can read or update any specific order
       match /orders/{orderId} {
         allow read, create: if request.auth != null && request.auth.uid == userId;
-        // Admins can read any specific order
-        allow get: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+        allow get, update: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
       }
     }
 

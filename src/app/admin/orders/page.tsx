@@ -14,10 +14,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { useRouter } from 'next/navigation';
 
 export default function OrdersPage() {
   const { orders, loading: ordersLoading, error: ordersError } = useAdminOrders();
   const { users, loading: usersLoading, error: usersError } = useUsers();
+  const router = useRouter();
 
   const getUserName = (userId: string) => {
     const user = users.find(u => u.uid === userId);
@@ -26,6 +28,10 @@ export default function OrdersPage() {
   
   const isLoading = ordersLoading || usersLoading;
   const error = ordersError || usersError;
+
+  const handleRowClick = (order: any) => {
+    router.push(`/admin/orders/${order.userId}/${order.id}`);
+  };
 
   return (
     <div>
@@ -56,7 +62,7 @@ export default function OrdersPage() {
             </TableHeader>
             <TableBody>
                 {orders.map((order) => (
-                    <TableRow key={order.id}>
+                    <TableRow key={order.id} onClick={() => handleRowClick(order)} className="cursor-pointer">
                         <TableCell className="font-medium">#{order.id.substring(0, 7)}</TableCell>
                         <TableCell>{getUserName(order.userId)}</TableCell>
                         <TableCell>{format(order.createdAt.toDate(), "PPP")}</TableCell>

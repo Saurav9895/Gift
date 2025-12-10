@@ -1,5 +1,5 @@
 
-import { collection, addDoc, serverTimestamp, doc, getDoc, onSnapshot, query, where, Timestamp, collectionGroup } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc, onSnapshot, query, where, Timestamp, collectionGroup, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Order } from '@/types';
 import { useState, useEffect } from 'react';
@@ -17,6 +17,17 @@ export const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt'>) =>
         throw new Error("Failed to create order");
     }
 };
+
+export const updateOrderStatus = async (userId: string, orderId: string, status: Order['status']) => {
+    try {
+        const orderDocRef = doc(db, 'users', userId, 'orders', orderId);
+        await updateDoc(orderDocRef, { status });
+    } catch (error) {
+        console.error("Error updating order status: ", error);
+        throw new Error("Failed to update order status");
+    }
+};
+
 
 export const useOrder = (userId: string | undefined, orderId: string) => {
     const [order, setOrder] = useState<Order | null>(null);
