@@ -44,12 +44,16 @@ export default function ProductsPage() {
 
     const handleDelete = async () => {
         if (!productToDelete) return;
+        
+        const productName = productToDelete.name;
+        const productId = productToDelete.id;
+
         setIsDeleting(true);
         try {
-            await deleteProduct(productToDelete.id);
+            await deleteProduct(productId);
             toast({
                 title: "Product Deleted",
-                description: `"${productToDelete.name}" has been successfully deleted.`,
+                description: `"${productName}" has been successfully deleted.`,
             });
         } catch (error) {
             toast({
@@ -120,10 +124,10 @@ export default function ProductsPage() {
                   {products.map((product) => (
                       <TableRow key={product.id}>
                           <TableCell>
-                              {product.imageUrl && (
+                              {product.imageUrls?.[0] && (
                                   <Image
-                                      src={product.imageUrl}
-                                      alt={product.name}
+                                      src={product.imageUrls[0]}
+                                      alt={product.name || "Product image"}
                                       width={48}
                                       height={48}
                                       className="rounded-md object-cover"
