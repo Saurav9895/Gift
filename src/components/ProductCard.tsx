@@ -31,7 +31,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     : 0;
 
   return (
-    <Card className="w-full overflow-visible transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group border-none shadow-lg">
+    <Card className="w-full overflow-visible transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group border">
        <div className="relative">
             <Button size="icon" className="absolute top-0 right-4 h-12 w-12 rounded-b-lg rounded-t-none bg-primary z-10" onClick={(e) => {e.preventDefault(); addToCart(product, 1)}}>
                 <ShoppingCart className="h-5 w-5" />
