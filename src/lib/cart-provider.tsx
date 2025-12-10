@@ -49,7 +49,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
       return [...prevItems, { ...product, quantity }];
     });
-    setIsCartOpen(true);
     toast({
       title: "Added to cart",
       description: `${quantity} x ${product.name} has been added to your cart.`,
