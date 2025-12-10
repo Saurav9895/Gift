@@ -47,6 +47,24 @@
       "description": "A vintage-style planter.",
       "imageUrl": "https://images.unsplash.com/photo-1589523795613-c3fce27eea23?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGxhbnQlMjBwb3R8ZW58MHx8fHwxNzY1MDc5MDg3fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "plant pot"
+    },
+    {
+      "id": "gift-9",
+      "description": "Side view of a person wearing a maroon hoodie.",
+      "imageUrl": "https://plus.unsplash.com/premium_photo-1678286769229-3f6c2f5d9f78?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "hoodie side"
+    },
+    {
+      "id": "gift-10",
+      "description": "Close up shot of a maroon hoodie.",
+      "imageUrl": "https://images.unsplash.com/photo-1556159989-1ded4c0c17ad?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "hoodie front"
+    },
+    {
+      "id": "gift-11",
+      "description": "Close up shot of a person wearing a maroon hoodie.",
+      "imageUrl": "https://images.unsplash.com/photo-155615998-c9c417937666?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "hoodie person"
     }
   ]
 }

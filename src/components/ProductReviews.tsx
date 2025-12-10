@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/lib/auth-provider";
@@ -12,9 +12,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Rating } from "@/components/Rating";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { formatDistanceToNow } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { format } from "date-fns";
+import { Loader2, Star } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Card, CardContent } from "./ui/card";
 
 const reviewFormSchema = z.object({
   rating: z.number().min(1, "Rating is required.").max(5),
@@ -84,43 +93,87 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
     : 0;
 
+  const ratingDistribution = [5, 4, 3, 2, 1].map(star => {
+      const count = reviews.filter(r => r.rating === star).length;
+      const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+      return { star, count, percentage };
+  });
+
   return (
     <div className="space-y-12">
-      <div>
-        <h3 className="text-2xl font-headline font-bold mb-2">Customer Reviews</h3>
-         {reviews.length > 0 && (
-            <div className="flex items-center gap-2 mb-6">
-                <Rating rating={averageRating} />
-                <span className="text-muted-foreground">({averageRating.toFixed(1)} out of 5)</span>
-            </div>
-        )}
-
-        {reviewsLoading && <Loader2 className="animate-spin" />}
-        
-        {!reviewsLoading && reviews.length === 0 && (
-          <p className="text-muted-foreground">No reviews yet. Be the first to share your thoughts!</p>
-        )}
-        
-        <div className="space-y-8">
-          {reviews.map((review) => (
-            <div key={review.id} className="flex gap-4">
-              <Avatar>
-                <AvatarFallback>{getInitials(review.userName)}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="font-semibold">{review.userName}</p>
-                        <p className="text-xs text-muted-foreground">
-                            {review.createdAt && formatDistanceToNow(review.createdAt.toDate(), { addSuffix: true })}
-                        </p>
-                    </div>
-                    <Rating rating={review.rating} />
+      <header>
+        <h3 className="text-2xl font-headline font-bold mb-4">Rating & Reviews</h3>
+      </header>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Side: Rating Summary */}
+        <div className="lg:col-span-1 space-y-6">
+             <div className="flex items-end gap-4">
+                <span className="text-7xl font-bold">{averageRating.toFixed(1)}</span>
+                <div className="flex flex-col">
+                    <Rating rating={averageRating} size={24}/>
+                    <p className="text-sm text-muted-foreground mt-1">({reviews.length} reviews)</p>
                 </div>
-                <p className="text-foreground/90 mt-2">{review.comment}</p>
-              </div>
             </div>
-          ))}
+            <div className="space-y-3">
+                {ratingDistribution.map(({ star, count, percentage }) => (
+                    <div key={star} className="flex items-center gap-4">
+                        <div className="flex items-center gap-1 text-sm">
+                            <span>{star}</span>
+                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400"/>
+                        </div>
+                        <Progress value={percentage} className="w-full h-2"/>
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        {/* Right Side: Reviews Carousel */}
+        <div className="lg:col-span-2">
+            {reviewsLoading && <div className="flex items-center justify-center h-full"><Loader2 className="animate-spin" /></div>}
+            {!reviewsLoading && reviews.length > 0 && (
+                 <Carousel
+                    opts={{
+                        align: "start",
+                    }}
+                    className="w-full"
+                    >
+                    <CarouselContent>
+                        {reviews.map((review) => (
+                           <CarouselItem key={review.id} className="md:basis-1/2">
+                                <Card className="h-full">
+                                    <CardContent className="p-6 flex flex-col justify-between h-full">
+                                        <div>
+                                            <div className="flex justify-between items-start mb-2">
+                                                <Rating rating={review.rating} />
+                                                <p className="text-xs text-muted-foreground">
+                                                    {review.createdAt && format(review.createdAt.toDate(), "dd MMM yyyy")}
+                                                </p>
+                                            </div>
+                                            <p className="text-foreground/90 text-sm leading-relaxed">&quot;{review.comment}&quot;</p>
+                                        </div>
+                                        <div className="flex items-center gap-3 mt-4 pt-4 border-t">
+                                            <Avatar className="h-10 w-10">
+                                                {/* Add avatar image if available */}
+                                                <AvatarFallback>{getInitials(review.userName)}</AvatarFallback>
+                                            </Avatar>
+                                            <p className="font-semibold text-sm">{review.userName}</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                     <div className="flex gap-2 mt-4">
+                        <CarouselPrevious className="static translate-y-0" />
+                        <CarouselNext className="static translate-y-0" />
+                    </div>
+                </Carousel>
+            )}
+             {!reviewsLoading && reviews.length === 0 && (
+                <div className="text-center p-8 bg-card border rounded-lg h-full flex flex-col justify-center">
+                    <p className="text-muted-foreground">No reviews yet for this product.</p>
+                </div>
+            )}
         </div>
       </div>
 
@@ -128,7 +181,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
         <div>
           <h3 className="text-2xl font-headline font-bold mb-4">Write a Review</h3>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-lg">
               <FormField
                 control={form.control}
                 name="rating"
@@ -166,7 +219,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
           </Form>
         </div>
       ) : (
-         <div className="text-center p-8 bg-card border rounded-lg">
+         <div className="text-center p-8 bg-card border rounded-lg max-w-lg mx-auto">
             <p className="text-muted-foreground">You must be logged in to write a review.</p>
          </div>
       )}

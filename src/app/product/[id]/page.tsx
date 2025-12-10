@@ -6,22 +6,26 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-provider";
-import { Loader2, ShoppingCart, Minus, Plus } from "lucide-react";
+import { Loader2, ShoppingCart, Minus, Plus, Heart, Clock } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { ProductReviews } from "@/components/ProductReviews";
 import ProductCard from "@/components/ProductCard";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel"
+} from "@/components/ui/carousel";
+import { useWishlist } from "@/lib/wishlist-provider";
+import { cn } from "@/lib/utils";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { Tag, Package, Truck, Calendar } from 'lucide-react';
+
+const SIZES = ["S", "M", "L", "XL", "XXL"];
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -29,24 +33,35 @@ export default function ProductDetailPage() {
   const productId = typeof id === "string" ? id : "";
   const { product, loading, error } = useProduct(productId);
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState("S");
+  
+  const productImages = [
+      product?.imageUrl,
+      ...PlaceHolderImages.slice(0, 3).map(p => p.imageUrl)
+  ].filter(Boolean) as string[];
+
+  const [mainImage, setMainImage] = useState(productImages[0]);
 
   const { products: relatedProducts, loading: relatedLoading } = useProducts({
       category: product?.category,
       limit: 8,
       excludeId: productId,
   });
+  
+  const isWishlisted = isInWishlist(productId);
 
   if (loading) {
     return <ProductDetailSkeleton />;
   }
+  
+  if (!mainImage && product?.imageUrl) {
+      setMainImage(product.imageUrl);
+  }
 
   if (error || !product) {
     return <div className="container mx-auto py-20 text-center">{error || "Product not found."}</div>;
-  }
-
-  const handleQuantityChange = (change: number) => {
-    setQuantity(prev => Math.max(1, prev + change));
   }
   
   const handleAddToCart = () => {
@@ -55,100 +70,134 @@ export default function ProductDetailPage() {
     }
   }
 
-  const handleBuyNow = () => {
-    if (product) {
-        addToCart(product, quantity);
-        router.push('/cart');
-    }
-  }
-
-  const hasDiscount = product.discountedPrice < product.originalPrice;
-
   return (
     <>
     <div className="container mx-auto px-4 py-12">
-      <div className="grid md:grid-cols-2 gap-12 items-start">
-        <div className="bg-card rounded-lg overflow-hidden border">
-           <div className="aspect-square relative">
-            {product.imageUrl && (
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-                onError={(e) => {
-                  if (e.target instanceof HTMLImageElement) {
-                    e.target.style.display = 'none';
-                  }
-                }}
-              />
-            )}
-           </div>
-        </div>
-        <div>
-          <h1 className="text-3xl md:text-4xl font-headline font-bold mb-2">{product.name}</h1>
-           <div className="mb-4">
-              <Badge variant="outline" className="text-sm capitalize">{product.category}</Badge>
+      <div className="grid lg:grid-cols-2 gap-12 items-start">
+        {/* Image Gallery */}
+        <div className="space-y-4">
+          <div className="bg-card rounded-lg overflow-hidden border">
+            <div className="aspect-square relative">
+              {mainImage && (
+                <Image
+                  src={mainImage}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                />
+              )}
             </div>
-          <p className="text-muted-foreground text-lg mb-6">{product.shortDescription}</p>
-          
-          <div className="flex items-baseline gap-4 mb-6">
-            {hasDiscount && (
-                <p className="text-3xl font-semibold text-primary">${product.discountedPrice.toFixed(2)}</p>
-            )}
-            <p className={cn("text-2xl font-medium", hasDiscount ? "text-muted-foreground line-through" : "text-primary")}>
-                ${product.originalPrice.toFixed(2)}
-            </p>
           </div>
+          <div className="grid grid-cols-4 gap-4">
+            {productImages.map((img, idx) => (
+              <button
+                key={idx}
+                className={cn(
+                  "aspect-square relative rounded-md overflow-hidden border-2",
+                  mainImage === img ? "border-primary" : "border-transparent"
+                )}
+                onClick={() => setMainImage(img)}
+              >
+                <Image
+                  src={img}
+                  alt={`${product.name} thumbnail ${idx + 1}`}
+                  fill
+                  className="object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* Product Info */}
+        <div>
+          <p className="text-sm text-muted-foreground mb-1 capitalize">{product.category}</p>
+          <h1 className="text-3xl md:text-4xl font-headline font-bold mb-2">{product.name}</h1>
+          <p className="text-3xl font-semibold text-foreground mb-4">${product.price.toFixed(2)}</p>
           
-          <Separator className="my-8" />
+          <div className="flex items-center text-sm text-muted-foreground mb-6">
+              <Clock className="h-4 w-4 mr-2"/>
+              <span>Order in the next <b>30 minutes</b> to get next-day delivery.</span>
+          </div>
+
+          {/* Size Selector */}
+          <div className="mb-6">
+            <p className="text-sm font-medium mb-2">Select Size</p>
+            <div className="flex gap-2">
+                {SIZES.map(size => (
+                    <Button 
+                        key={size} 
+                        variant={selectedSize === size ? 'default' : 'outline'}
+                        onClick={() => setSelectedSize(size)}
+                        className="w-12 h-12"
+                    >
+                        {size}
+                    </Button>
+                ))}
+            </div>
+          </div>
           
           <div className="flex items-center gap-4 mb-6">
-            <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
-                    <Minus className="h-4 w-4"/>
-                </Button>
-                <Input 
-                    type="number" 
-                    className="w-16 text-center" 
-                    value={quantity}
-                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                    min="1"
-                />
-                <Button variant="outline" size="icon" onClick={() => handleQuantityChange(1)}>
-                    <Plus className="h-4 w-4"/>
-                </Button>
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button size="lg" variant="outline" onClick={handleAddToCart}>
+             <Button size="lg" className="flex-1" onClick={handleAddToCart}>
                 <ShoppingCart className="mr-2 h-5 w-5"/>
                 Add to Cart
             </Button>
-            <Button size="lg" onClick={handleBuyNow}>
-                Buy Now
+             <Button variant="outline" size="icon" className="h-12 w-12" onClick={() => toggleWishlist(product)}>
+                <Heart className={cn("h-5 w-5", isWishlisted ? "fill-primary text-primary" : "")}/>
             </Button>
           </div>
+
+          <Accordion type="single" collapsible defaultValue="description" className="w-full">
+            <AccordionItem value="description">
+              <AccordionTrigger>Description & Fit</AccordionTrigger>
+              <AccordionContent className="prose prose-sm text-muted-foreground">
+                {product.longDescription}
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="shipping">
+              <AccordionTrigger>Shipping</AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center gap-3">
+                        <Tag className="h-5 w-5 text-muted-foreground"/>
+                        <div>
+                            <p className="font-medium">Discount</p>
+                            <p className="text-muted-foreground">Up to 50%</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Package className="h-5 w-5 text-muted-foreground"/>
+                        <div>
+                            <p className="font-medium">Package</p>
+                            <p className="text-muted-foreground">Regular</p>
+                        </div>
+                    </div>
+                     <div className="flex items-center gap-3">
+                        <Truck className="h-5 w-5 text-muted-foreground"/>
+                        <div>
+                            <p className="font-medium">Delivery Time</p>
+                            <p className="text-muted-foreground">3-4 Days</p>
+                        </div>
+                    </div>
+                     <div className="flex items-center gap-3">
+                        <Calendar className="h-5 w-5 text-muted-foreground"/>
+                        <div>
+                            <p className="font-medium">Estimated Arrival</p>
+                            <p className="text-muted-foreground">10-12 Oct 2024</p>
+                        </div>
+                    </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </div>
-      
        <Separator className="my-16" />
-
-        <div>
-            <h3 className="text-2xl font-headline font-bold mb-4">About this Gift</h3>
-            <div className="prose prose-lg max-w-none text-muted-foreground">
-                 <p>{product.longDescription}</p>
-            </div>
-        </div>
-
-       <Separator className="my-16" />
-
        <ProductReviews productId={productId} />
-
     </div>
     
     {!relatedLoading && relatedProducts.length > 0 && (
-         <div className="bg-muted/50">
+         <div className="bg-muted/20">
             <div className="container mx-auto px-4 py-16">
                  <Carousel
                     opts={{
@@ -189,14 +238,23 @@ export default function ProductDetailPage() {
 function ProductDetailSkeleton() {
     return (
         <div className="container mx-auto px-4 py-12">
-            <div className="grid md:grid-cols-2 gap-12 items-start">
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+              <div className="space-y-4">
                 <Skeleton className="aspect-square w-full rounded-lg" />
+                <div className="grid grid-cols-4 gap-4">
+                    <Skeleton className="aspect-square w-full rounded-md" />
+                    <Skeleton className="aspect-square w-full rounded-md" />
+                    <Skeleton className="aspect-square w-full rounded-md" />
+                    <Skeleton className="aspect-square w-full rounded-md" />
+                </div>
+              </div>
                 <div className="space-y-6">
+                    <Skeleton className="h-6 w-1/4" />
                     <Skeleton className="h-10 w-3/4" />
-                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-10 w-1/3" />
                     <Skeleton className="h-5 w-5/6" />
-                    <Skeleton className="h-12 w-1/2" />
-                    <Skeleton className="h-12 w-1/3" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
                 </div>
             </div>
         </div>
