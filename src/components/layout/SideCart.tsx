@@ -82,7 +82,7 @@ export default function SideCart() {
                 <span>Subtotal: ${subtotal.toFixed(2)}</span>
               </div>
               <Button asChild className="w-full" size="lg" onClick={() => setIsCartOpen(false)}>
-                <Link href="/cart">Proceed to Checkout</Link>
+                <Link href="/checkout">Proceed to Checkout</Link>
               </Button>
             </SheetFooter>
           </>
