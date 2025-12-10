@@ -1,4 +1,5 @@
 
+
 export type UserRole = 'customer' | 'admin';
 
 export interface UserProfile {
@@ -74,4 +75,19 @@ export interface Order {
     total: number;
     status: 'Processing' | 'Shipped' | 'Out for Delivery' | 'Delivered' | 'Canceled';
     createdAt: any;
+}
+
+
+export interface PromoCode {
+    code: string;
+    type: "Percentage" | "Fixed" | "Free Delivery";
+    value: number;
+}
+
+export interface StoreSettings {
+    featuredProductIds: string[];
+    featuredCategoryIds: string[];
+    deliveryFee: number;
+    freeDeliveryThreshold: number;
+    promoCodes: PromoCode[];
 }

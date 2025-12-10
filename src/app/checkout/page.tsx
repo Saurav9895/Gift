@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useCart } from "@/lib/cart-provider";
@@ -24,9 +25,9 @@ import {
 } from "@/components/ui/card";
 import { useAddresses, addAddress } from "@/lib/addresses";
 import { useAuth } from "@/lib/auth-provider";
-import { Loader2, PlusCircle, MapPin } from "lucide-react";
+import { Loader2, PlusCircle, MapPin, X } from "lucide-react";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,6 +51,8 @@ import {
 import { useRouter } from "next/navigation";
 import { createOrder } from "@/lib/orders";
 import type { Address, OrderItem } from "@/types";
+import { useStoreSettings } from "@/lib/settings";
+import { Badge } from "@/components/ui/badge";
 
 const addressSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -70,6 +73,7 @@ export default function CheckoutPage() {
   const { addresses, loading: addressesLoading } = useAddresses(user?.uid);
   const { toast } = useToast();
   const router = useRouter();
+  const { settings, loading: settingsLoading } = useStoreSettings();
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | undefined>(undefined);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("cod");
@@ -77,9 +81,52 @@ export default function CheckoutPage() {
 
   const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+  
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; type: string; value: number } | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  
+  const deliveryFee = useMemo(() => {
+    if (!settings || subtotal === 0) return 0;
+    if (appliedPromo?.type === "Free Delivery") return 0;
+    if (settings.freeDeliveryThreshold > 0 && subtotal >= settings.freeDeliveryThreshold) {
+      return 0;
+    }
+    return settings.deliveryFee;
+  }, [settings, subtotal, appliedPromo]);
 
-  const deliveryFee = cartItems.length > 0 ? 10.00 : 0;
-  const total = subtotal + deliveryFee;
+  const discount = useMemo(() => {
+    if (!appliedPromo) return 0;
+    if (appliedPromo.type === "Percentage") {
+      return (subtotal * appliedPromo.value) / 100;
+    }
+    if (appliedPromo.type === "Fixed") {
+      return appliedPromo.value;
+    }
+    return 0;
+  }, [appliedPromo, subtotal]);
+
+  const total = useMemo(() => {
+    const calculatedTotal = subtotal + deliveryFee - discount;
+    return Math.max(0, calculatedTotal);
+  }, [subtotal, deliveryFee, discount]);
+  
+  const handleApplyPromo = () => {
+    setPromoError(null);
+    const code = settings?.promoCodes?.find(p => p.code.toLowerCase() === promoCode.toLowerCase());
+    if (code) {
+        setAppliedPromo(code);
+        toast({ title: "Promo code applied!" });
+    } else {
+        setPromoError("Invalid promo code.");
+    }
+  }
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoCode("");
+    setPromoError(null);
+  }
 
   const addressForm = useForm<z.infer<typeof addressSchema>>({
     resolver: zodResolver(addressSchema),
@@ -304,18 +351,39 @@ export default function CheckoutPage() {
                         <span>${subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Delivery Fee</span>
-                        <span>${deliveryFee.toFixed(2)}</span>
+                        <span className="text-muted-foreground">Delivery</span>
+                        <span>{deliveryFee > 0 ? `$${deliveryFee.toFixed(2)}` : 'Free'}</span>
                     </div>
-                     <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Promo Code</span>
-                         <Link href="#" className="text-primary hover:underline">Add Code</Link>
-                    </div>
+                    {appliedPromo && (
+                        <div className="flex justify-between text-sm text-green-600">
+                            <span className="text-muted-foreground">Discount ({appliedPromo.code})</span>
+                            <span>-${discount.toFixed(2)}</span>
+                        </div>
+                    )}
                     <Separator className="my-2"/>
                     <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
-                        <span>${(total).toFixed(2)}</span>
+                        <span>${total.toFixed(2)}</span>
                     </div>
+                </CardContent>
+                 <Separator />
+                <CardContent>
+                     <div className="space-y-2">
+                        <Label htmlFor="promo">Promo Code</Label>
+                        <div className="flex gap-2">
+                            <Input id="promo" placeholder="Enter code" value={promoCode} onChange={(e) => setPromoCode(e.target.value)} disabled={!!appliedPromo}/>
+                            <Button onClick={handleApplyPromo} disabled={!!appliedPromo || !promoCode}>Apply</Button>
+                        </div>
+                        {promoError && <p className="text-xs text-destructive">{promoError}</p>}
+                        {appliedPromo && (
+                            <Badge variant="secondary" className="flex justify-between items-center">
+                                <span>Code "{appliedPromo.code}" applied</span>
+                                <button onClick={handleRemovePromo} className="ml-2 rounded-full p-0.5 hover:bg-muted-foreground/20">
+                                    <X className="h-3 w-3"/>
+                                </button>
+                            </Badge>
+                        )}
+                     </div>
                 </CardContent>
               </Card>
               <Button size="lg" className="w-full" onClick={handlePlaceOrder} disabled={isPlacingOrder}>
