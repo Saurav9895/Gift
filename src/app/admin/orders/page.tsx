@@ -1,4 +1,8 @@
 
+"use client";
+
+import { useAdminOrders } from "@/lib/orders";
+import { useUsers } from "@/lib/users";
 import {
   Table,
   TableBody,
@@ -8,71 +12,54 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-
-// Mock data for orders
-const orders = [
-  {
-    id: "ORD001",
-    customer: "Liam Johnson",
-    date: "2023-11-23",
-    total: 150.00,
-    status: "Delivered",
-  },
-  {
-    id: "ORD002",
-    customer: "Olivia Smith",
-    date: "2023-11-24",
-    total: 45.50,
-    status: "Shipped",
-  },
-  {
-    id: "ORD003",
-    customer: "Noah Williams",
-    date: "2023-11-25",
-    total: 210.75,
-    status: "Processing",
-  },
-    {
-    id: "ORD004",
-    customer: "Emma Brown",
-    date: "2023-11-26",
-    total: 89.99,
-    status: "Delivered",
-  },
-  {
-    id: "ORD005",
-    customer: "Ava Jones",
-    date: "2023-11-27",
-    total: 5.00,
-    status: "Canceled",
-  },
-];
+import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
 
 export default function OrdersPage() {
+  const { orders, loading: ordersLoading, error: ordersError } = useAdminOrders();
+  const { users, loading: usersLoading, error: usersError } = useUsers();
+
+  const getUserName = (userId: string) => {
+    const user = users.find(u => u.uid === userId);
+    return user?.name || "Unknown User";
+  };
+  
+  const isLoading = ordersLoading || usersLoading;
+  const error = ordersError || usersError;
+
   return (
     <div>
       <header className="mb-8">
         <h1 className="text-3xl font-bold font-headline">Orders</h1>
-        <p className="text-muted-foreground">View and manage customer orders.</p>
+        <p className="text-muted-foreground">View and manage all customer orders.</p>
       </header>
       
-      <div className="bg-card rounded-lg border">
+      {isLoading && (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      )}
+
+      {error && <div className="text-center text-destructive">{error}</div>}
+
+      {!isLoading && !error && (
+        <div className="bg-card rounded-lg border">
          <Table>
             <TableHeader>
                 <TableRow>
                     <TableHead>Order ID</TableHead>
                     <TableHead>Customer</TableHead>
                     <TableHead>Date</TableHead>
-                     <TableHead>Status</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {orders.map((order) => (
                     <TableRow key={order.id}>
-                        <TableCell className="font-medium">{order.id}</TableCell>
-                        <TableCell>{order.customer}</TableCell>
-                        <TableCell>{order.date}</TableCell>
+                        <TableCell className="font-medium">#{order.id.substring(0, 7)}</TableCell>
+                        <TableCell>{getUserName(order.userId)}</TableCell>
+                        <TableCell>{format(order.createdAt.toDate(), "PPP")}</TableCell>
                         <TableCell>
                             <Badge 
                                 variant={
@@ -91,6 +78,7 @@ export default function OrdersPage() {
             </TableBody>
         </Table>
       </div>
+      )}
     </div>
   );
 }

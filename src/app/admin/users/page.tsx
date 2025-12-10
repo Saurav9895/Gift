@@ -1,8 +1,7 @@
+
 "use client";
 
-import { useEffect, useState } from 'react';
-import { collection, getDocs, QuerySnapshot, DocumentData } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { useUsers } from '@/lib/users';
 import { UserProfile } from '@/types';
 import {
   Table,
@@ -17,27 +16,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2 } from 'lucide-react';
 
 export default function UsersPage() {
-    const [users, setUsers] = useState<UserProfile[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const usersCollectionRef = collection(db, 'users');
-                const querySnapshot: QuerySnapshot<DocumentData> = await getDocs(usersCollectionRef);
-                const usersList = querySnapshot.docs.map(doc => doc.data() as UserProfile);
-                setUsers(usersList);
-            } catch (err) {
-                console.error("Error fetching users:", err);
-                setError("Failed to fetch users. Please check console for details.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUsers();
-    }, []);
+    const { users, loading, error } = useUsers();
 
     const getInitials = (name: string | null) => {
         if (!name) return 'U';

@@ -1,5 +1,5 @@
 
-import { collection, addDoc, serverTimestamp, doc, getDoc, onSnapshot, query, where, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc, onSnapshot, query, where, Timestamp, collectionGroup } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Order } from '@/types';
 import { useState, useEffect } from 'react';
@@ -85,3 +85,29 @@ export const useOrders = (userId?: string) => {
 
     return { orders, loading, error };
 };
+
+export const useAdminOrders = () => {
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const ordersQuery = query(collectionGroup(db, 'orders'));
+        const unsubscribe = onSnapshot(ordersQuery,
+            (querySnapshot) => {
+                const ordersList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+                setOrders(ordersList);
+                setLoading(false);
+            },
+            (err) => {
+                console.error(`Error fetching all orders:`, err);
+                setError("Failed to fetch all orders.");
+                setLoading(false);
+            }
+        );
+
+        return () => unsubscribe();
+    }, []);
+
+    return { orders, loading, error };
+}
