@@ -34,13 +34,21 @@ function PopularCategories() {
           Popular Categories
         </h2>
       </header>
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-[450px] md:h-[620px]">
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto lg:h-[620px]">
         {isLoading ? (
-           Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-full w-full rounded-lg"/>)
+           <>
+            <Skeleton className="h-[300px] lg:h-full w-full rounded-lg"/>
+            <div className="grid grid-cols-2 gap-6">
+                <Skeleton className="h-[300px] lg:h-full w-full rounded-lg"/>
+                <Skeleton className="h-[300px] lg:h-full w-full rounded-lg"/>
+                <Skeleton className="h-[300px] lg:h-full w-full rounded-lg"/>
+                <Skeleton className="h-[300px] lg:h-full w-full rounded-lg"/>
+            </div>
+           </>
         ) : (
           <>
             {mainCategory && (
-                 <Link href={`/products?category=${mainCategory.name}`} className="lg:col-span-2 col-span-1 md:row-span-2 group relative rounded-lg overflow-hidden">
+                 <Link href={`/products?category=${mainCategory.name}`} className="group relative rounded-lg overflow-hidden h-[300px] lg:h-full">
                     <Image src={mainCategory.imageUrl} alt={mainCategory.name} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                     <div className="absolute bottom-6 left-6 text-white">
@@ -49,15 +57,17 @@ function PopularCategories() {
                     </div>
                 </Link>
             )}
-            {sideCategories.map(category => (
-                <Link href={`/products?category=${category.name}`} key={category.id} className="col-span-1 group relative rounded-lg overflow-hidden">
-                    <Image src={category.imageUrl} alt={category.name} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
-                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                    <div className="absolute bottom-4 left-4 text-white">
-                        <h3 className="text-lg font-bold font-headline">{category.name}</h3>
-                    </div>
-                </Link>
-            ))}
+            <div className="grid grid-cols-2 grid-rows-2 gap-6">
+                {sideCategories.map(category => (
+                    <Link href={`/products?category=${category.name}`} key={category.id} className="h-[150px] sm:h-[250px] lg:h-full col-span-1 row-span-1 group relative rounded-lg overflow-hidden">
+                        <Image src={category.imageUrl} alt={category.name} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <div className="absolute bottom-4 left-4 text-white">
+                            <h3 className="text-lg font-bold font-headline">{category.name}</h3>
+                        </div>
+                    </Link>
+                ))}
+            </div>
           </>
         )}
       </div>
@@ -126,4 +136,5 @@ export default function Home() {
     </>
   );
 }
+
 
