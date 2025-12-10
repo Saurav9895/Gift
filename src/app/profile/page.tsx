@@ -359,14 +359,14 @@ export default function ProfilePage() {
 
     {/* Add Address Dialog */}
     <Dialog open={isAddAddressOpen} onOpenChange={setIsAddAddressOpen}>
-        <DialogContent className="sm:max-w-md max-h-[90vh]">
+        <DialogContent className="sm:max-w-md">
             <DialogHeader>
                 <DialogTitle>Add New Address</DialogTitle>
                 <DialogDescription>
                     Fill in the details below or fetch your current location.
                 </DialogDescription>
             </DialogHeader>
-            <div className="overflow-y-auto px-1">
+            <div className="py-4">
             <Form {...addressForm}>
                 <form onSubmit={addressForm.handleSubmit(onAddAddressSubmit)} className="space-y-4">
                     <Button type="button" variant="outline" className="w-full" onClick={handleFetchLocation} disabled={isFetchingLocation}>
@@ -430,7 +430,7 @@ export default function ProfilePage() {
                 </DialogDescription>
             </DialogHeader>
              <Form {...passwordForm}>
-                <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4 pt-4">
                      <FormField control={passwordForm.control} name="currentPassword" render={({ field }) => (
                         <FormItem><FormLabel>Current Password</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
@@ -459,7 +459,7 @@ export default function ProfilePage() {
                 </DialogDescription>
             </DialogHeader>
              <Form {...phoneForm}>
-                <form onSubmit={phoneForm.handleSubmit(onPhoneSubmit)} className="space-y-4">
+                <form onSubmit={phoneForm.handleSubmit(onPhoneSubmit)} className="space-y-4 pt-4">
                      <FormField control={phoneForm.control} name="phone" render={({ field }) => (
                         <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
