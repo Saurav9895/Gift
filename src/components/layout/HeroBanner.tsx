@@ -1,8 +1,10 @@
+
 "use client"
 
-import { Search } from "lucide-react";
+import { Search as SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Search from "./Search";
 
 export default function HeroBanner() {
     return (
@@ -16,17 +18,7 @@ export default function HeroBanner() {
                     Search our curated collection to find something special for every occasion.
                 </p>
                 <div className="max-w-xl mx-auto">
-                    <form className="flex gap-2 bg-white p-2 rounded-lg shadow-lg">
-                        <Input 
-                            type="text" 
-                            placeholder="Search for gifts..." 
-                            className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
-                        />
-                        <Button type="submit" size="lg">
-                            <Search className="mr-2 h-5 w-5" />
-                            Search
-                        </Button>
-                    </form>
+                    <Search />
                 </div>
             </div>
         </div>
