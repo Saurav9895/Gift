@@ -23,10 +23,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAddresses } from "@/lib/addresses";
+import { useAuth } from "@/lib/auth-provider";
+import { Loader2 } from "lucide-react";
 
 
 export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity, cartCount } = useCart();
+  const { user } = useAuth();
+  const { addresses, loading: addressesLoading } = useAddresses(user?.uid);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const deliveryFee = cartItems.length > 0 ? 10.00 : 0;
@@ -58,14 +63,26 @@ export default function CartPage() {
                 <Label>Saved Addresses</Label>
                 <Select>
                     <SelectTrigger>
-                        <SelectValue placeholder="Select a saved address" />
+                        <SelectValue placeholder={addressesLoading ? "Loading addresses..." : "Select a saved address"} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="addr1">Saurav Yadav, 4th Cross Road, SI shelter flat 504, Bengaluru, KA 560016, India</SelectItem>
+                        {addressesLoading ? (
+                            <div className="flex items-center justify-center p-2">
+                                <Loader2 className="h-4 w-4 animate-spin"/>
+                            </div>
+                        ) : (
+                            addresses.map(addr => (
+                                <SelectItem key={addr.id} value={addr.id}>
+                                    {`${addr.name}, ${addr.addressLine1}, ${addr.city}, ${addr.state} ${addr.postalCode}, ${addr.country}`}
+                                </SelectItem>
+                            ))
+                        )}
                     </SelectContent>
                 </Select>
             </div>
-            <Button variant="outline">Add New Address</Button>
+            <Button variant="outline" asChild>
+                <Link href="/profile">Add New Address</Link>
+            </Button>
           </CardContent>
         </Card>
 

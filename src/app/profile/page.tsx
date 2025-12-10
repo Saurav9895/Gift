@@ -13,20 +13,104 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { LogOut, KeyRound, Phone, Home, List, MapPin, Pencil, Trash2, PlusCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { LogOut, KeyRound, Phone, Home, List, MapPin, Pencil, Trash2, PlusCircle, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useAddresses, addAddress, deleteAddress } from "@/lib/addresses";
+import type { Address } from "@/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+const addressSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  addressLine1: z.string().min(1, "Address is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  postalCode: z.string().min(1, "Postal code is required"),
+  country: z.string().min(1, "Country is required"),
+  phone: z.string().min(1, "Phone number is required"),
+});
 
 export default function ProfilePage() {
-  const { user, userProfile, loading, signOut } = useAuth();
+  const { user, userProfile, loading: authLoading, signOut } = useAuth();
+  const { addresses, loading: addressesLoading } = useAddresses(user?.uid);
   const router = useRouter();
+  const { toast } = useToast();
+
+  const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState<Address | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       router.push("/login");
     }
-  }, [user, loading, router]);
+  }, [user, authLoading, router]);
+
+  const form = useForm<z.infer<typeof addressSchema>>({
+    resolver: zodResolver(addressSchema),
+    defaultValues: {
+      name: "", addressLine1: "", city: "",
+      state: "", postalCode: "", country: "", phone: "",
+    },
+  });
+
+  const onAddAddressSubmit = async (values: z.infer<typeof addressSchema>) => {
+    if (!user) return;
+    try {
+      await addAddress(user.uid, values);
+      toast({ title: "Address added successfully" });
+      setIsAddAddressOpen(false);
+      form.reset();
+    } catch (error) {
+      toast({ variant: "destructive", title: "Failed to add address" });
+    }
+  };
+
+  const handleDeleteAddress = async () => {
+    if (!user || !addressToDelete) return;
+    setIsDeleting(true);
+    try {
+        await deleteAddress(user.uid, addressToDelete.id);
+        toast({ title: "Address deleted" });
+    } catch (error) {
+        toast({ variant: "destructive", title: "Failed to delete address" });
+    } finally {
+        setIsDeleting(false);
+        setAddressToDelete(null);
+    }
+  };
+
 
   const getInitials = (name: string | null | undefined) => {
     if (!name) return "U";
@@ -37,7 +121,7 @@ export default function ProfilePage() {
       .toUpperCase();
   };
 
-  if (loading || !userProfile) {
+  if (authLoading || !userProfile) {
     return (
       <div className="container mx-auto px-4 py-12">
         <Skeleton className="h-10 w-1/4 mb-8" />
@@ -55,29 +139,8 @@ export default function ProfilePage() {
     );
   }
 
-  // Mock data for addresses
-  const addresses = [
-    {
-        name: "Saurav Yadav",
-        address: "SI shelter flat 504, 4th Cross Road, Bengaluru, KA 560016",
-        country: "India",
-        phone: "9842483338"
-    },
-    {
-        name: "Saurav Yadav",
-        address: "Annapurna Store, Manohara Phant, Madhyapur Thimi, Bagmati Province 44600",
-        country: "Nepal",
-        phone: "9155917535"
-    },
-    {
-        name: "Saurav",
-        address: "International Hostel, IIt ISM, Lohar Kulli, Dhanbad, JH 826007",
-        country: "India",
-        phone: "9155917535"
-    }
-  ]
-
   return (
+    <>
     <div className="container mx-auto px-4 py-12 bg-muted/20">
       <header className="mb-8">
         <h1 className="text-3xl font-bold font-headline">My Account</h1>
@@ -161,17 +224,24 @@ export default function ProfilePage() {
                         <CardTitle className="text-xl">Shipping Addresses</CardTitle>
                         <CardDescription>Manage your saved addresses.</CardDescription>
                     </div>
-                    <Button>
+                    <Button onClick={() => setIsAddAddressOpen(true)}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Add New
                     </Button>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {addresses.map((address, index) => (
-                        <div key={index} className="p-4 border rounded-lg flex gap-4">
+                    {addressesLoading ? (
+                        <div className="flex items-center justify-center p-4">
+                             <Loader2 className="h-6 w-6 animate-spin"/>
+                        </div>
+                    ) : addresses.length === 0 ? (
+                        <p className="text-muted-foreground text-sm p-4 text-center">No saved addresses found.</p>
+                    ) : (
+                        addresses.map((address) => (
+                        <div key={address.id} className="p-4 border rounded-lg flex gap-4">
                             <Home className="h-5 w-5 text-muted-foreground mt-1"/>
                             <div className="flex-grow">
                                 <p className="font-semibold">{address.name}</p>
-                                <p className="text-sm text-muted-foreground">{address.address}</p>
+                                <p className="text-sm text-muted-foreground">{address.addressLine1}, {address.city}, {address.state} {address.postalCode}</p>
                                 <p className="text-sm text-muted-foreground">{address.country}</p>
                                 <p className="text-sm text-muted-foreground">Phone: {address.phone}</p>
                                 <Button variant="link" className="p-0 h-auto text-primary">
@@ -179,21 +249,82 @@ export default function ProfilePage() {
                                 </Button>
                             </div>
                              <div className="flex flex-col sm:flex-row sm:items-start gap-2">
-                                <Button variant="ghost" size="icon">
+                                <Button variant="ghost" size="icon" disabled>
                                     <Pencil className="h-4 w-4"/>
                                 </Button>
-                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => setAddressToDelete(address)}>
                                     <Trash2 className="h-4 w-4"/>
                                 </Button>
                             </div>
                         </div>
-                    ))}
+                    )))}
                 </CardContent>
             </Card>
         </div>
       </div>
     </div>
+    <Dialog open={isAddAddressOpen} onOpenChange={setIsAddAddressOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Add New Address</DialogTitle>
+                <DialogDescription>
+                    Fill in the details below to save a new shipping address.
+                </DialogDescription>
+            </DialogHeader>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onAddAddressSubmit)} className="space-y-4">
+                    <FormField control={form.control} name="name" render={({ field }) => (
+                        <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                    <FormField control={form.control} name="addressLine1" render={({ field }) => (
+                        <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField control={form.control} name="city" render={({ field }) => (
+                            <FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="state" render={({ field }) => (
+                            <FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                        <FormField control={form.control} name="postalCode" render={({ field }) => (
+                            <FormItem><FormLabel>Postal Code</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="country" render={({ field }) => (
+                            <FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                    </div>
+                    <FormField control={form.control} name="phone" render={({ field }) => (
+                        <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                    <DialogFooter>
+                        <Button type="button" variant="outline" onClick={() => setIsAddAddressOpen(false)}>Cancel</Button>
+                        <Button type="submit" disabled={form.formState.isSubmitting}>
+                            {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                            Save Address
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </Form>
+        </DialogContent>
+    </Dialog>
+    <AlertDialog open={!!addressToDelete} onOpenChange={(open) => !open && setAddressToDelete(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This will permanently delete this address. This action cannot be undone.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteAddress} disabled={isDeleting}>
+                    {isDeleting ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
-
-    

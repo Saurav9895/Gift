@@ -123,6 +123,50 @@
         }
       },
       "required": ["productId", "userId", "userName", "rating", "comment", "createdAt"]
+    },
+    "Address": {
+      "title": "Address",
+      "description": "Represents a user's shipping address.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Recipient's name."
+        },
+        "addressLine1": {
+          "type": "string",
+          "description": "Street address, P.O. box, company name, c/o"
+        },
+        "city": {
+          "type": "string",
+          "description": "City"
+        },
+        "state": {
+          "type": "string",
+          "description": "State / Province / Region"
+        },
+        "postalCode": {
+          "type": "string",
+          "description": "ZIP / Postal Code"
+        },
+        "country": {
+          "type": "string",
+          "description": "Country"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number"
+        }
+      },
+      "required": [
+        "name",
+        "addressLine1",
+        "city",
+        "state",
+        "postalCode",
+        "country",
+        "phone"
+      ]
     }
   },
   "auth": {
@@ -136,6 +180,12 @@
         "$ref": "#/entities/UserProfile"
       },
       "description": "Stores user profile information."
+    },
+    "/users/{userId}/addresses/{addressId}": {
+        "schema": {
+            "$ref": "#/entities/Address"
+        },
+        "description": "Stores user shipping addresses."
     },
     "/products/{productId}": {
       "schema": {

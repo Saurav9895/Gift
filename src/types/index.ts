@@ -40,3 +40,14 @@ export interface Review {
   comment: string;
   createdAt: any;
 }
+
+export interface Address {
+  id: string;
+  name: string;
+  addressLine1: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+}
