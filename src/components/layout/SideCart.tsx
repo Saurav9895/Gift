@@ -83,9 +83,6 @@ export default function SideCart() {
                 <span>Subtotal</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
-              <p className="text-center text-sm text-muted-foreground">
-                  Taxes and shipping will be calculated at checkout.
-              </p>
               <Button asChild className="w-full" size="lg" onClick={() => setIsCartOpen(false)}>
                 <Link href="/cart">Proceed to Checkout</Link>
               </Button>
