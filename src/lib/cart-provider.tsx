@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Product, CartItem } from '@/types';
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from './auth-provider';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -21,10 +22,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { toast, dismiss } = useToast();
+  const { user } = useAuth();
+
+  const getCartKey = (userId: string | null) => userId ? `cartItems_${userId}` : 'cartItems_guest';
 
   useEffect(() => {
+    // Clear cart on user change to prevent cart leakage
+    setCartItems([]);
     try {
-      const storedCart = localStorage.getItem('cartItems');
+      const cartKey = getCartKey(user?.uid || null);
+      const storedCart = localStorage.getItem(cartKey);
       if (storedCart) {
         setCartItems(JSON.parse(storedCart));
       }
@@ -32,11 +39,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       console.error("Failed to parse cart items from localStorage", error);
       setCartItems([]);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
-    localStorage.setItem('cartItems', JSON.stringify(cartItems));
-  }, [cartItems]);
+    const cartKey = getCartKey(user?.uid || null);
+    localStorage.setItem(cartKey, JSON.stringify(cartItems));
+  }, [cartItems, user]);
 
 
   const addToCart = (product: Product, quantity: number = 1) => {
