@@ -22,7 +22,7 @@ import { useState } from "react";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Category name must be at least 2 characters." }),
-  imageUrl: z.string().url({ message: "Please upload an image for the category." }),
+  imageUrl: z.string().url({ message: "Please provide a valid image URL." }),
 });
 
 export default function AddCategoryPage() {
@@ -85,7 +85,7 @@ export default function AddCategoryPage() {
                 name="imageUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category Image</FormLabel>
+                    <FormLabel>Category Image URL</FormLabel>
                     <FormControl>
                        <ImageUploader 
                             onUrlChange={field.onChange} 

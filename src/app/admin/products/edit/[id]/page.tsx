@@ -32,7 +32,7 @@ const formSchema = z.object({
   originalPrice: z.coerce.number().positive({ message: "Original price must be a positive number." }),
   discountedPrice: z.coerce.number().positive({ message: "Discounted price must be a positive number." }),
   quantity: z.coerce.number().int().positive({ message: "Quantity must be a positive integer." }),
-  imageUrl: z.string().url({ message: "Please upload an image." }),
+  imageUrl: z.string().url({ message: "Please provide a valid image URL." }),
   category: z.string().min(1, { message: "Please select a category." }),
 });
 
@@ -229,7 +229,7 @@ export default function EditProductPage() {
                     name="imageUrl"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Product Image</FormLabel>
+                        <FormLabel>Product Image URL</FormLabel>
                         <FormControl>
                             <ImageUploader 
                                 onUrlChange={field.onChange} 
