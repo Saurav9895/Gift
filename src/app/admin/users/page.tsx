@@ -2,7 +2,7 @@
 "use client";
 
 import { useUsers } from '@/lib/users';
-import { UserProfile } from '@/types';
+import { useRouter } from 'next/navigation';
 import {
   Table,
   TableBody,
@@ -14,14 +14,20 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2 } from 'lucide-react';
+import type { UserProfile } from '@/types';
 
 export default function UsersPage() {
     const { users, loading, error } = useUsers();
+    const router = useRouter();
 
     const getInitials = (name: string | null) => {
         if (!name) return 'U';
         return name.split(' ').map(n => n[0]).join('').toUpperCase();
     }
+
+    const handleRowClick = (user: UserProfile) => {
+        router.push(`/admin/users/${user.uid}`);
+    };
 
     return (
         <div>
@@ -50,7 +56,7 @@ export default function UsersPage() {
                         </TableHeader>
                         <TableBody>
                             {users.map((user) => (
-                                <TableRow key={user.uid}>
+                                <TableRow key={user.uid} onClick={() => handleRowClick(user)} className="cursor-pointer">
                                     <TableCell>
                                         <div className="flex items-center gap-3">
                                             <Avatar>
