@@ -6,6 +6,7 @@ export interface UserProfile {
   email: string | null;
   name: string | null;
   role: UserRole;
+  phone?: string;
 }
 
 export interface Product {

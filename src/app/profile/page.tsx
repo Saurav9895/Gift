@@ -61,13 +61,29 @@ const addressSchema = z.object({
   phone: z.string().min(1, "Phone number is required"),
 });
 
+const passwordSchema = z.object({
+    currentPassword: z.string().min(6, "Password must be at least 6 characters."),
+    newPassword: z.string().min(6, "Password must be at least 6 characters."),
+}).refine(data => data.currentPassword !== data.newPassword, {
+    message: "New password must be different from the current password.",
+    path: ["newPassword"],
+});
+
+
+const phoneSchema = z.object({
+    phone: z.string().min(10, "Phone number must be at least 10 digits."),
+});
+
 export default function ProfilePage() {
-  const { user, userProfile, loading: authLoading, signOut } = useAuth();
+  const { user, userProfile, loading: authLoading, signOut, updateUserPassword, updateUserProfile } = useAuth();
   const { addresses, loading: addressesLoading } = useAddresses(user?.uid);
   const router = useRouter();
   const { toast } = useToast();
 
   const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
+  const [isPhoneOpen, setIsPhoneOpen] = useState(false);
+
   const [addressToDelete, setAddressToDelete] = useState<Address | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
@@ -78,13 +94,29 @@ export default function ProfilePage() {
     }
   }, [user, authLoading, router]);
 
-  const form = useForm<z.infer<typeof addressSchema>>({
+  const addressForm = useForm<z.infer<typeof addressSchema>>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
       name: "", addressLine1: "", city: "",
       state: "", postalCode: "", country: "", phone: "",
     },
   });
+
+  const passwordForm = useForm<z.infer<typeof passwordSchema>>({
+      resolver: zodResolver(passwordSchema),
+      defaultValues: { currentPassword: "", newPassword: "" },
+  });
+
+  const phoneForm = useForm<z.infer<typeof phoneSchema>>({
+      resolver: zodResolver(phoneSchema),
+      defaultValues: { phone: userProfile?.phone || "" },
+  });
+
+   useEffect(() => {
+    if (userProfile?.phone) {
+      phoneForm.setValue("phone", userProfile.phone);
+    }
+  }, [userProfile, phoneForm]);
   
   const handleFetchLocation = async () => {
     if (!navigator.geolocation) {
@@ -100,14 +132,14 @@ export default function ProfilePage() {
           const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
           const data = await response.json();
           const { address } = data;
-          form.reset({
+          addressForm.reset({
             addressLine1: `${address.road || ''}${address.house_number ? ' ' + address.house_number : ''}`,
             city: address.city || address.town || address.village || '',
             state: address.state || '',
             postalCode: address.postcode || '',
             country: address.country || '',
             name: userProfile?.name || '',
-            phone: '',
+            phone: userProfile?.phone || '',
           });
            toast({ title: "Location fetched!", description: "Address fields have been pre-filled." });
         } catch (error) {
@@ -130,11 +162,33 @@ export default function ProfilePage() {
       await addAddress(user.uid, values);
       toast({ title: "Address added successfully" });
       setIsAddAddressOpen(false);
-      form.reset();
+      addressForm.reset();
     } catch (error) {
       toast({ variant: "destructive", title: "Failed to add address" });
     }
   };
+
+   const onPasswordSubmit = async (values: z.infer<typeof passwordSchema>) => {
+    try {
+        await updateUserPassword(values.currentPassword, values.newPassword);
+        toast({ title: "Password updated successfully" });
+        setIsPasswordOpen(false);
+        passwordForm.reset();
+    } catch (error: any) {
+        toast({ variant: "destructive", title: "Failed to update password", description: error.message });
+    }
+   }
+
+   const onPhoneSubmit = async (values: z.infer<typeof phoneSchema>) => {
+        if (!userProfile) return;
+        try {
+            await updateUserProfile({ phone: values.phone });
+            toast({ title: "Phone number updated" });
+            setIsPhoneOpen(false);
+        } catch (error) {
+            toast({ variant: "destructive", title: "Failed to update phone number" });
+        }
+   }
 
   const handleDeleteAddress = async () => {
     if (!user || !addressToDelete) return;
@@ -220,17 +274,17 @@ export default function ProfilePage() {
                                 <p className="text-xs text-muted-foreground">Change your account password</p>
                             </div>
                         </div>
-                        <Button variant="outline" size="sm">Change</Button>
+                        <Button variant="outline" size="sm" onClick={() => setIsPasswordOpen(true)}>Change</Button>
                     </div>
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="flex items-center gap-3">
                             <Phone className="h-5 w-5 text-muted-foreground" />
                              <div>
                                 <p className="font-medium">Mobile Number</p>
-                                <p className="text-xs text-muted-foreground">9842483338</p>
+                                <p className="text-xs text-muted-foreground">{userProfile.phone || "Not set"}</p>
                             </div>
                         </div>
-                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="outline" size="sm" onClick={() => setIsPhoneOpen(true)}>Edit</Button>
                     </div>
                 </CardContent>
             </Card>
@@ -302,6 +356,8 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+
+    {/* Add Address Dialog */}
     <Dialog open={isAddAddressOpen} onOpenChange={setIsAddAddressOpen}>
         <DialogContent className="sm:max-w-md max-h-[90vh]">
             <DialogHeader>
@@ -311,8 +367,8 @@ export default function ProfilePage() {
                 </DialogDescription>
             </DialogHeader>
             <div className="overflow-y-auto px-1">
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onAddAddressSubmit)} className="space-y-4">
+            <Form {...addressForm}>
+                <form onSubmit={addressForm.handleSubmit(onAddAddressSubmit)} className="space-y-4">
                     <Button type="button" variant="outline" className="w-full" onClick={handleFetchLocation} disabled={isFetchingLocation}>
                         {isFetchingLocation ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
@@ -326,35 +382,35 @@ export default function ProfilePage() {
                         <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-sm text-muted-foreground">OR</span>
                     </div>
 
-                    <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormField control={addressForm.control} name="name" render={({ field }) => (
                         <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
-                    <FormField control={form.control} name="addressLine1" render={({ field }) => (
+                    <FormField control={addressForm.control} name="addressLine1" render={({ field }) => (
                         <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
                     <div className="grid grid-cols-2 gap-4">
-                        <FormField control={form.control} name="city" render={({ field }) => (
+                        <FormField control={addressForm.control} name="city" render={({ field }) => (
                             <FormItem><FormLabel>City</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
-                        <FormField control={form.control} name="state" render={({ field }) => (
+                        <FormField control={addressForm.control} name="state" render={({ field }) => (
                             <FormItem><FormLabel>State / Province</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                     </div>
                      <div className="grid grid-cols-2 gap-4">
-                        <FormField control={form.control} name="postalCode" render={({ field }) => (
+                        <FormField control={addressForm.control} name="postalCode" render={({ field }) => (
                             <FormItem><FormLabel>Postal Code</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
-                        <FormField control={form.control} name="country" render={({ field }) => (
+                        <FormField control={addressForm.control} name="country" render={({ field }) => (
                             <FormItem><FormLabel>Country</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                     </div>
-                    <FormField control={form.control} name="phone" render={({ field }) => (
+                    <FormField control={addressForm.control} name="phone" render={({ field }) => (
                         <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
                     <DialogFooter className="pt-4">
                         <Button type="button" variant="outline" onClick={() => setIsAddAddressOpen(false)}>Cancel</Button>
-                        <Button type="submit" disabled={form.formState.isSubmitting}>
-                            {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                        <Button type="submit" disabled={addressForm.formState.isSubmitting}>
+                            {addressForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
                             Save Address
                         </Button>
                     </DialogFooter>
@@ -363,6 +419,64 @@ export default function ProfilePage() {
             </div>
         </DialogContent>
     </Dialog>
+
+    {/* Change Password Dialog */}
+    <Dialog open={isPasswordOpen} onOpenChange={setIsPasswordOpen}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>Change Password</DialogTitle>
+                <DialogDescription>
+                    Enter your current and new password below.
+                </DialogDescription>
+            </DialogHeader>
+             <Form {...passwordForm}>
+                <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                     <FormField control={passwordForm.control} name="currentPassword" render={({ field }) => (
+                        <FormItem><FormLabel>Current Password</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                     <FormField control={passwordForm.control} name="newPassword" render={({ field }) => (
+                        <FormItem><FormLabel>New Password</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                    <DialogFooter className="pt-4">
+                        <Button type="button" variant="outline" onClick={() => setIsPasswordOpen(false)}>Cancel</Button>
+                        <Button type="submit" disabled={passwordForm.formState.isSubmitting}>
+                            {passwordForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                            Save Password
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </Form>
+        </DialogContent>
+    </Dialog>
+
+    {/* Change Phone Dialog */}
+    <Dialog open={isPhoneOpen} onOpenChange={setIsPhoneOpen}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>Change Mobile Number</DialogTitle>
+                <DialogDescription>
+                    Enter your new mobile number below.
+                </DialogDescription>
+            </DialogHeader>
+             <Form {...phoneForm}>
+                <form onSubmit={phoneForm.handleSubmit(onPhoneSubmit)} className="space-y-4">
+                     <FormField control={phoneForm.control} name="phone" render={({ field }) => (
+                        <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                    <DialogFooter className="pt-4">
+                        <Button type="button" variant="outline" onClick={() => setIsPhoneOpen(false)}>Cancel</Button>
+                        <Button type="submit" disabled={phoneForm.formState.isSubmitting}>
+                            {phoneForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                            Save Number
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </Form>
+        </DialogContent>
+    </Dialog>
+
+
+    {/* Delete Address Dialog */}
     <AlertDialog open={!!addressToDelete} onOpenChange={(open) => !open && setAddressToDelete(null)}>
         <AlertDialogContent>
             <AlertDialogHeader>
@@ -382,5 +496,3 @@ export default function ProfilePage() {
     </>
   );
 }
-
-    
