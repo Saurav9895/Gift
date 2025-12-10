@@ -62,7 +62,8 @@ const addressSchema = z.object({
 });
 
 export default function CheckoutPage() {
-  const { cartItems, cartCount, subtotal } = useCart();
+  const { cartItems, cartCount } = useCart();
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const { user, userProfile } = useAuth();
   const { addresses, loading: addressesLoading } = useAddresses(user?.uid);
   const { toast } = useToast();
@@ -232,7 +233,7 @@ export default function CheckoutPage() {
                         <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                         </div>
                         <p className="font-semibold text-sm whitespace-nowrap">
-                            Rs{item.price.toFixed(2)}
+                            ${(item.price * item.quantity).toFixed(2)}
                         </p>
                     </div>
                     ))}
@@ -241,11 +242,11 @@ export default function CheckoutPage() {
                 <CardContent className="space-y-2">
                     <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
-                        <span>Rs{subtotal.toFixed(2)}</span>
+                        <span>${subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Delivery Fee</span>
-                        <span>Rs{deliveryFee.toFixed(2)}</span>
+                        <span>${deliveryFee.toFixed(2)}</span>
                     </div>
                      <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Promo Code</span>
@@ -254,7 +255,7 @@ export default function CheckoutPage() {
                     <Separator className="my-2"/>
                     <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
-                        <span>Rs{total.toFixed(2)}</span>
+                        <span>${(total).toFixed(2)}</span>
                     </div>
                 </CardContent>
               </Card>

@@ -73,7 +73,7 @@ export default function CartPage() {
                         ) : (
                             addresses.map(addr => (
                                 <SelectItem key={addr.id} value={addr.id}>
-                                    {`${addr.name}, ${addr.addressLine1}, ${addr.city}, ${addr.state} ${addr.postalCode}, ${addr.country}`}
+                                    {`${addr.name}, ${addr.homeFloor}, ${addr.locality}, ${addr.city}, ${addr.state} ${addr.postalCode}, ${addr.country}`}
                                 </SelectItem>
                             ))
                         )}
@@ -81,7 +81,7 @@ export default function CartPage() {
                 </Select>
             </div>
             <Button variant="outline" asChild>
-                <Link href="/profile">Add New Address</Link>
+                <Link href="/checkout">Add New Address</Link>
             </Button>
           </CardContent>
         </Card>
@@ -135,7 +135,7 @@ export default function CartPage() {
                     </div>
                     </div>
                     <p className="font-semibold text-sm">
-                        Rs{item.price.toFixed(2)}
+                        ${(item.price * item.quantity).toFixed(2)}
                     </p>
                 </div>
                 ))}
@@ -144,15 +144,15 @@ export default function CartPage() {
              <CardContent className="space-y-2">
                 <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>Rs{subtotal.toFixed(2)}</span>
+                    <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Delivery Fee</span>
-                    <span>Rs{deliveryFee.toFixed(2)}</span>
+                    <span>${deliveryFee.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-bold">
                     <span>Total</span>
-                    <span>Rs{total.toFixed(2)}</span>
+                    <span>${total.toFixed(2)}</span>
                 </div>
              </CardContent>
             <Separator />
@@ -166,8 +166,8 @@ export default function CartPage() {
                  </div>
             </CardContent>
             </Card>
-             <Button size="lg" className="w-full">
-                Place Order
+             <Button size="lg" className="w-full" asChild>
+                <Link href="/checkout">Place Order</Link>
             </Button>
         </div>
       </div>
@@ -175,3 +175,4 @@ export default function CartPage() {
     </div>
   );
 }
+
