@@ -129,16 +129,17 @@ export default function HomeControllerPage() {
 
   const productOptions = products
     .filter(p => !form.getValues("featuredProductIds").includes(p.id))
-    .map(p => ({ label: p.name, value: p.id }));
+    .map(p => ({ label: p.name, value: p.id, imageUrl: p.imageUrl }));
 
   const categoryOptions = categories
     .filter(c => !form.getValues("featuredCategoryIds").includes(c.id))
-    .map(c => ({ label: c.name, value: c.id }));
+    .map(c => ({ label: c.name, value: c.id, imageUrl: c.imageUrl }));
 
   const selectedProducts = form.watch('featuredProductIds').map(id => products.find(p => p.id === id)).filter(Boolean) as Product[];
   const selectedCategories = form.watch('featuredCategoryIds').map(id => categories.find(c => c.id === id)).filter(Boolean) as Category[];
 
   const handleAddProduct = (id: string) => {
+    if (!id || form.getValues('featuredProductIds').includes(id)) return;
     if (form.getValues('featuredProductIds').length < 8) {
         appendProduct(id);
     } else {
@@ -147,6 +148,7 @@ export default function HomeControllerPage() {
   };
   
   const handleAddCategory = (id: string) => {
+    if (!id || form.getValues('featuredCategoryIds').includes(id)) return;
     if (form.getValues('featuredCategoryIds').length < 5) {
         appendCategory(id);
     } else {
@@ -181,7 +183,7 @@ export default function HomeControllerPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Featured Products</CardTitle>
-                <CardDescription>Select up to 8 products to feature prominently. Drag to reorder.</CardDescription>
+                <CardDescription>Select up to 8 products to feature prominently. Use the arrows to reorder.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Combobox
@@ -202,7 +204,7 @@ export default function HomeControllerPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Popular Categories</CardTitle>
-                <CardDescription>Select up to 5 categories for the homepage grid. Drag to reorder.</CardDescription>
+                <CardDescription>Select up to 5 categories for the homepage grid. Use the arrows to reorder.</CardDescription>
               </CardHeader>
               <CardContent>
                  <Combobox
