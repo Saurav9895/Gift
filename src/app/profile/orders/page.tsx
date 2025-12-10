@@ -68,7 +68,7 @@ export default function MyOrdersPage() {
                             {orders.map((order) => (
                                 <TableRow key={order.id}>
                                     <TableCell className="font-medium text-primary hover:underline">
-                                        <Link href={`/order-confirmation/${order.id}`}>
+                                        <Link href={`/orders/${order.id}`}>
                                            #{order.id.substring(0, 7)}
                                         </Link>
                                     </TableCell>
