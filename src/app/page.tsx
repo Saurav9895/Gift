@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useProducts } from '@/lib/products';
@@ -30,6 +31,9 @@ function PopularCategories() {
   }
 
   const isLoading = categoriesLoading || productsLoading;
+  
+  const mainCategory = categories[0];
+  const sideCategories = categories.slice(1, 5);
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -39,39 +43,30 @@ function PopularCategories() {
           Popular Categories
         </h2>
       </header>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-             <Card key={i} className="flex flex-col items-center justify-center p-6 text-center border-dashed">
-                <Skeleton className="h-24 w-24 rounded-full mb-4"/>
-                <Skeleton className="h-6 w-24 mb-2"/>
-                <Skeleton className="h-4 w-16"/>
-            </Card>
-          ))
+           Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-64 rounded-lg"/>)
         ) : (
           <>
-            {categories.slice(0, 3).map(category => (
-               <Link href="/products" key={category.id}>
-                <Card className="flex flex-col items-center justify-center p-6 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group">
-                    <div className="relative h-24 w-24 rounded-full mb-4 bg-secondary flex items-center justify-center overflow-hidden">
-                      {category.imageUrl && (
-                         <Image src={category.imageUrl} alt={category.name} width={60} height={60} className="object-contain transition-transform duration-300 group-hover:scale-110" />
-                      )}
+            {mainCategory && (
+                 <Link href={`/products?category=${mainCategory.name}`} className="lg:col-span-1 md:col-span-2 col-span-1 row-span-2 group relative rounded-lg overflow-hidden min-h-[300px] md:min-h-0">
+                    <Image src={mainCategory.imageUrl} alt={mainCategory.name} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute bottom-6 left-6 text-white">
+                        <h3 className="text-2xl font-bold font-headline">{mainCategory.name}</h3>
+                        <Button variant="secondary" className="mt-2" size="sm">Shop Now</Button>
                     </div>
-                    <h3 className="font-bold text-lg font-headline">{category.name}</h3>
-                    <p className="text-sm text-muted-foreground">({getProductCount(category.name)} items)</p>
-                </Card>
-              </Link>
+                </Link>
+            )}
+            {sideCategories.map(category => (
+                <Link href={`/products?category=${category.name}`} key={category.id} className="col-span-1 group relative rounded-lg overflow-hidden min-h-[200px]">
+                    <Image src={category.imageUrl} alt={category.name} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                    <div className="absolute bottom-4 left-4 text-white">
+                        <h3 className="text-lg font-bold font-headline">{category.name}</h3>
+                    </div>
+                </Link>
             ))}
-             <Link href="/products">
-                <Card className="flex flex-col items-center justify-center p-6 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group h-full bg-secondary/50 border-dashed">
-                    <div className="relative h-24 w-24 rounded-full mb-4 bg-secondary flex items-center justify-center">
-                       <ArrowRight className="h-8 w-8 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1" />
-                    </div>
-                    <h3 className="font-bold text-lg font-headline">View All</h3>
-                    <p className="text-sm text-muted-foreground">({products.length} items)</p>
-                </Card>
-            </Link>
           </>
         )}
       </div>
@@ -126,6 +121,10 @@ export default function Home() {
                 ))
             }
           </CarouselContent>
+           <div className="flex md:hidden gap-2 mt-4 justify-center">
+              <CarouselPrevious />
+              <CarouselNext />
+            </div>
         </Carousel>
          <div className="text-center mt-16">
           <Button asChild size="lg">
