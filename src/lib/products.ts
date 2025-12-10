@@ -81,11 +81,13 @@ export const useProducts = (options?: { category?: string; limit?: number; exclu
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let q = query(productsCollection);
     const constraints: QueryConstraint[] = [];
-    
+
     if (options?.category) {
         constraints.push(where('category', '==', options.category));
     }
+    
     if (options?.sort) {
         const [field, direction] = options.sort.split('-');
         constraints.push(orderBy(field === 'name' ? 'name' : 'price', direction as 'asc' | 'desc'));
@@ -94,7 +96,9 @@ export const useProducts = (options?: { category?: string; limit?: number; exclu
         constraints.push(limit(options.limit));
     }
 
-    const q = query(productsCollection, ...constraints);
+    if (constraints.length > 0) {
+        q = query(productsCollection, ...constraints);
+    }
 
     const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
