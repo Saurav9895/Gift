@@ -119,7 +119,7 @@ export default function SettingsPage() {
     }
   });
 
-  const { fields: productFields, append: appendProduct, remove: removeProduct, move: moveProduct } = useFieldArray({
+  const { fields: productFields, append: appendProduct, remove: removeProduct, move: moveProduct, replace: replaceProducts } = useFieldArray({
       control: form.control,
       name: "featuredProductIds"
   });
@@ -140,7 +140,18 @@ export default function SettingsPage() {
       const docRef = doc(db, "site-settings", "store");
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        form.reset(docSnap.data());
+        form.reset({
+            ...docSnap.data(),
+            featuredProductIds: [] // Always start with an empty list
+        });
+      } else {
+        form.reset({
+            deliveryFee: 0,
+            freeDeliveryThreshold: 0,
+            promoCodes: [],
+            featuredProductIds: [],
+            featuredCategoryIds: [],
+        })
       }
       setPageLoading(false);
     };
