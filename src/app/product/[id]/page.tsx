@@ -2,7 +2,7 @@
 "use client";
 
 import { useProduct, useProducts } from "@/lib/products";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-provider";
@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
+  const router = useRouter();
   const productId = typeof id === "string" ? id : "";
   const { product, loading, error } = useProduct(productId);
   const { addToCart } = useCart();
@@ -44,6 +45,13 @@ export default function ProductDetailPage() {
   const handleAddToCart = () => {
     if (product) {
         addToCart(product, quantity);
+    }
+  }
+
+  const handleBuyNow = () => {
+    if (product) {
+        addToCart(product, quantity);
+        router.push('/cart');
     }
   }
 
@@ -88,7 +96,7 @@ export default function ProductDetailPage() {
           
           <Separator className="my-8" />
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mb-6">
             <div className="flex items-center gap-2">
                 <Button variant="outline" size="icon" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
                     <Minus className="h-4 w-4"/>
@@ -104,9 +112,14 @@ export default function ProductDetailPage() {
                     <Plus className="h-4 w-4"/>
                 </Button>
             </div>
-            <Button size="lg" onClick={handleAddToCart}>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button size="lg" variant="outline" onClick={handleAddToCart}>
                 <ShoppingCart className="mr-2 h-5 w-5"/>
                 Add to Cart
+            </Button>
+            <Button size="lg" onClick={handleBuyNow}>
+                Buy Now
             </Button>
           </div>
         </div>
