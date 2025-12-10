@@ -4,7 +4,7 @@
 import { useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-provider";
 import { useOrder } from "@/lib/orders";
-import { Loader2, CheckCircle, Package, Truck, HomeIcon } from "lucide-react";
+import { Loader2, CheckCircle, Package, Truck, HomeIcon, Bike } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 const statusSteps = [
     { name: "Processing", status: "Processing", icon: Package },
     { name: "Shipped", status: "Shipped", icon: Truck },
+    { name: "Out for Delivery", status: "Out for Delivery", icon: Bike },
     { name: "Delivered", status: "Delivered", icon: HomeIcon },
 ];
 

@@ -23,11 +23,27 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import type { Order } from "@/types";
 
 
 export default function MyOrdersPage() {
   const { user } = useAuth();
   const { orders, loading, error } = useOrders(user?.uid);
+
+  const getBadgeVariant = (status: Order['status']) => {
+    switch (status) {
+      case 'Delivered':
+        return 'default';
+      case 'Canceled':
+        return 'destructive';
+      case 'Shipped':
+      case 'Out for Delivery':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
+  };
+
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -75,11 +91,7 @@ export default function MyOrdersPage() {
                                     <TableCell>{format(order.createdAt.toDate(), "PPP")}</TableCell>
                                     <TableCell>
                                         <Badge 
-                                            variant={
-                                                order.status === 'Delivered' ? 'default' :
-                                                order.status === 'Canceled' ? 'destructive' :
-                                                'secondary'
-                                            }
+                                            variant={getBadgeVariant(order.status)}
                                         >
                                             {order.status}
                                         </Badge>

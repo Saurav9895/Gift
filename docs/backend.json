@@ -207,7 +207,7 @@
         "subtotal": { "type": "number" },
         "deliveryFee": { "type": "number" },
         "total": { "type": "number" },
-        "status": { "type": "string", "enum": ["Processing", "Shipped", "Delivered", "Canceled"] },
+        "status": { "type": "string", "enum": ["Processing", "Shipped", "Out for Delivery", "Delivered", "Canceled"] },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "items", "shippingAddress", "paymentMethod", "total", "status", "createdAt"]

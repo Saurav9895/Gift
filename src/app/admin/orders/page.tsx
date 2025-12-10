@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter } from 'next/navigation';
+import type { Order } from "@/types";
 
 export default function OrdersPage() {
   const { orders, loading: ordersLoading, error: ordersError } = useAdminOrders();
@@ -31,6 +32,20 @@ export default function OrdersPage() {
 
   const handleRowClick = (order: any) => {
     router.push(`/admin/orders/${order.userId}/${order.id}`);
+  };
+
+  const getBadgeVariant = (status: Order['status']) => {
+    switch (status) {
+      case 'Delivered':
+        return 'default';
+      case 'Canceled':
+        return 'destructive';
+      case 'Shipped':
+      case 'Out for Delivery':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
   };
 
   return (
@@ -68,11 +83,7 @@ export default function OrdersPage() {
                         <TableCell>{format(order.createdAt.toDate(), "PPP")}</TableCell>
                         <TableCell>
                             <Badge 
-                                variant={
-                                    order.status === 'Delivered' ? 'default' :
-                                    order.status === 'Canceled' ? 'destructive' :
-                                    'secondary'
-                                }
+                                variant={getBadgeVariant(order.status)}
                                 className="capitalize"
                             >
                                 {order.status}

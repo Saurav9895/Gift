@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import type { Order } from "@/types";
+import { cn } from "@/lib/utils";
 
 export default function OrderDetailPage() {
   const { userId, orderId } = useParams();
@@ -64,6 +65,21 @@ export default function OrderDetailPage() {
   if (orderError || !order) {
     return <div className="text-center py-10">{orderError || "Order not found."}</div>;
   }
+
+  const getBadgeVariant = (status: Order['status']) => {
+    switch (status) {
+      case 'Delivered':
+        return 'default';
+      case 'Canceled':
+        return 'destructive';
+      case 'Shipped':
+      case 'Out for Delivery':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
+  };
+
 
   const { shippingAddress: address } = order;
 
@@ -126,7 +142,7 @@ export default function OrderDetailPage() {
                         </div>
                          <div className="flex justify-between items-center text-sm">
                             <span className="text-muted-foreground">Status</span>
-                             <Badge variant={order.status === 'Delivered' ? 'default' : order.status === 'Canceled' ? 'destructive' : 'secondary'} className="capitalize">{order.status}</Badge>
+                             <Badge variant={getBadgeVariant(order.status)} className="capitalize">{order.status}</Badge>
                         </div>
                         <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Subtotal</span>
@@ -150,6 +166,7 @@ export default function OrderDetailPage() {
                                 <SelectContent>
                                     <SelectItem value="Processing">Processing</SelectItem>
                                     <SelectItem value="Shipped">Shipped</SelectItem>
+                                    <SelectItem value="Out for Delivery">Out for Delivery</SelectItem>
                                     <SelectItem value="Delivered">Delivered</SelectItem>
                                     <SelectItem value="Canceled">Canceled</SelectItem>
                                 </SelectContent>

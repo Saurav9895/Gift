@@ -72,6 +72,6 @@ export interface Order {
     subtotal: number;
     deliveryFee: number;
     total: number;
-    status: 'Processing' | 'Shipped' | 'Delivered' | 'Canceled';
+    status: 'Processing' | 'Shipped' | 'Out for Delivery' | 'Delivered' | 'Canceled';
     createdAt: any;
 }
