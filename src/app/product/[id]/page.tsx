@@ -6,12 +6,12 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-provider";
-import { Loader2, ShoppingCart, Minus, Plus, Heart, Clock } from "lucide-react";
+import { Loader2, ShoppingCart, Heart, Tag, Package, Truck, Calendar } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductReviews } from "@/components/ProductReviews";
 import ProductCard from "@/components/ProductCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -22,8 +22,6 @@ import {
 import { useWishlist } from "@/lib/wishlist-provider";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Tag, Package, Truck, Calendar } from 'lucide-react';
 
 const SIZES = ["S", "M", "L", "XL", "XXL"];
 
@@ -37,12 +35,15 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("S");
   
-  const productImages = [
-      product?.imageUrl,
-      ...PlaceHolderImages.slice(0, 3).map(p => p.imageUrl)
-  ].filter(Boolean) as string[];
+  const productImages = product?.imageUrls || [];
 
   const [mainImage, setMainImage] = useState(productImages[0]);
+
+  useEffect(() => {
+    if (product?.imageUrls?.[0]) {
+      setMainImage(product.imageUrls[0]);
+    }
+  }, [product]);
 
   const { products: relatedProducts, loading: relatedLoading } = useProducts({
       category: product?.category,
@@ -56,8 +57,8 @@ export default function ProductDetailPage() {
     return <ProductDetailSkeleton />;
   }
   
-  if (!mainImage && product?.imageUrl) {
-      setMainImage(product.imageUrl);
+  if (!mainImage && product?.imageUrls?.[0]) {
+      setMainImage(product.imageUrls[0]);
   }
 
   if (error || !product) {
@@ -69,6 +70,10 @@ export default function ProductDetailPage() {
         addToCart(product, quantity);
     }
   }
+
+  const discountPercentage = product.originalPrice > product.discountedPrice
+    ? Math.round(((product.originalPrice - product.discountedPrice) / product.originalPrice) * 100)
+    : 0;
 
   return (
     <>
@@ -115,25 +120,34 @@ export default function ProductDetailPage() {
           <h1 className="text-3xl md:text-4xl font-headline font-bold mb-2">{product.name}</h1>
           <p className="text-3xl font-semibold text-foreground mb-4">${product.price.toFixed(2)}</p>
           
-          <div className="flex items-center text-sm text-muted-foreground mb-6">
-              <Clock className="h-4 w-4 mr-2"/>
-              <span>Order in the next <b>30 minutes</b> to get next-day delivery.</span>
-          </div>
-
-          {/* Size Selector */}
-          <div className="mb-6">
-            <p className="text-sm font-medium mb-2">Select Size</p>
-            <div className="flex gap-2">
-                {SIZES.map(size => (
-                    <Button 
-                        key={size} 
-                        variant={selectedSize === size ? 'default' : 'outline'}
-                        onClick={() => setSelectedSize(size)}
-                        className="w-12 h-12"
-                    >
-                        {size}
-                    </Button>
-                ))}
+          <div className="space-y-4 mb-6 p-4 border rounded-lg">
+            <div className="flex items-center gap-3">
+                <Tag className="h-5 w-5 text-muted-foreground"/>
+                <div>
+                    <p className="font-medium">Discount</p>
+                    <p className="text-muted-foreground text-sm">Up to {discountPercentage}%</p>
+                </div>
+            </div>
+            <div className="flex items-center gap-3">
+                <Package className="h-5 w-5 text-muted-foreground"/>
+                <div>
+                    <p className="font-medium">Package</p>
+                    <p className="text-muted-foreground text-sm">Regular</p>
+                </div>
+            </div>
+             <div className="flex items-center gap-3">
+                <Truck className="h-5 w-5 text-muted-foreground"/>
+                <div>
+                    <p className="font-medium">Delivery Time</p>
+                    <p className="text-muted-foreground text-sm">{product.deliveryTime}</p>
+                </div>
+            </div>
+             <div className="flex items-center gap-3">
+                <Calendar className="h-5 w-5 text-muted-foreground"/>
+                <div>
+                    <p className="font-medium">Estimated Arrival</p>
+                    <p className="text-muted-foreground text-sm">{product.estimatedArrival}</p>
+                </div>
             </div>
           </div>
           
@@ -152,41 +166,6 @@ export default function ProductDetailPage() {
               <AccordionTrigger>Description & Fit</AccordionTrigger>
               <AccordionContent className="prose prose-sm text-muted-foreground">
                 {product.longDescription}
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="shipping">
-              <AccordionTrigger>Shipping</AccordionTrigger>
-              <AccordionContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-3">
-                        <Tag className="h-5 w-5 text-muted-foreground"/>
-                        <div>
-                            <p className="font-medium">Discount</p>
-                            <p className="text-muted-foreground">Up to 50%</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Package className="h-5 w-5 text-muted-foreground"/>
-                        <div>
-                            <p className="font-medium">Package</p>
-                            <p className="text-muted-foreground">Regular</p>
-                        </div>
-                    </div>
-                     <div className="flex items-center gap-3">
-                        <Truck className="h-5 w-5 text-muted-foreground"/>
-                        <div>
-                            <p className="font-medium">Delivery Time</p>
-                            <p className="text-muted-foreground">3-4 Days</p>
-                        </div>
-                    </div>
-                     <div className="flex items-center gap-3">
-                        <Calendar className="h-5 w-5 text-muted-foreground"/>
-                        <div>
-                            <p className="font-medium">Estimated Arrival</p>
-                            <p className="text-muted-foreground">10-12 Oct 2024</p>
-                        </div>
-                    </div>
-                </div>
               </AccordionContent>
             </AccordionItem>
           </Accordion>

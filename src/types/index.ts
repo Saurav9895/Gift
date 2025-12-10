@@ -19,8 +19,10 @@ export interface Product {
   originalPrice: number;
   discountedPrice: number;
   quantity: number;
-  imageUrl: string;
+  imageUrls: string[];
   category: string;
+  deliveryTime?: string;
+  estimatedArrival?: string;
 }
 
 export interface Category {

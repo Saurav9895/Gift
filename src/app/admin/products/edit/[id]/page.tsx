@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ import { useCategories } from "@/lib/categories";
 import { Combobox } from "@/components/ui/combobox";
 import { ImageUploader } from "@/components/ImageUploader";
 import { useParams, useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Product name must be at least 2 characters." }),
@@ -32,8 +32,10 @@ const formSchema = z.object({
   originalPrice: z.coerce.number().positive({ message: "Original price must be a positive number." }),
   discountedPrice: z.coerce.number().positive({ message: "Discounted price must be a positive number." }),
   quantity: z.coerce.number().int().positive({ message: "Quantity must be a positive integer." }),
-  imageUrl: z.string().url({ message: "Please provide a valid image URL." }),
+  imageUrls: z.array(z.string().url()).min(1, { message: "Please provide at least one image URL." }),
   category: z.string().min(1, { message: "Please select a category." }),
+  deliveryTime: z.string().min(1, { message: "Delivery time is required." }),
+  estimatedArrival: z.string().min(1, { message: "Estimated arrival is required." }),
 });
 
 export default function EditProductPage() {
@@ -56,8 +58,14 @@ export default function EditProductPage() {
     defaultValues: {
       name: "", shortDescription: "", longDescription: "",
       originalPrice: 0, discountedPrice: 0, quantity: 1,
-      imageUrl: "", category: "",
+      imageUrls: [], category: "",
+      deliveryTime: "", estimatedArrival: "",
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "imageUrls"
   });
 
   useEffect(() => {
@@ -69,8 +77,10 @@ export default function EditProductPage() {
         originalPrice: product.originalPrice,
         discountedPrice: product.discountedPrice,
         quantity: product.quantity,
-        imageUrl: product.imageUrl,
+        imageUrls: product.imageUrls,
         category: product.category,
+        deliveryTime: product.deliveryTime || "3-4 Days",
+        estimatedArrival: product.estimatedArrival || "10-12 Oct 2024",
       });
     }
   }, [product, form]);
@@ -206,6 +216,30 @@ export default function EditProductPage() {
                     )}
                 />
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="deliveryTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Delivery Time</FormLabel>
+                      <FormControl><Input placeholder="e.g., 3-4 Days" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="estimatedArrival"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estimated Arrival</FormLabel>
+                      <FormControl><Input placeholder="e.g., 10-12 Oct 2024" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
                <FormField
                     control={form.control}
                     name="category"
@@ -224,22 +258,45 @@ export default function EditProductPage() {
                         </FormItem>
                     )}
                 />
-               <FormField
-                    control={form.control}
-                    name="imageUrl"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Product Image URL</FormLabel>
-                        <FormControl>
-                            <ImageUploader 
-                                onUrlChange={field.onChange} 
-                                currentImageUrl={field.value}
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
+               <div>
+                <FormLabel>Product Images</FormLabel>
+                <div className="space-y-4 pt-2">
+                    {fields.map((field, index) => (
+                      <div key={field.id} className="flex items-center gap-4">
+                        <FormField
+                          control={form.control}
+                          name={`imageUrls.${index}`}
+                          render={({ field }) => (
+                            <FormItem className="flex-grow">
+                              <FormControl>
+                                  <ImageUploader 
+                                      onUrlChange={field.onChange} 
+                                      currentImageUrl={field.value}
+                                  />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button variant="ghost" size="icon" onClick={() => remove(index)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => append("")}
+                    >
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Image
+                    </Button>
+                     {form.formState.errors.imageUrls && (
+                        <p className="text-sm font-medium text-destructive">{form.formState.errors.imageUrls.message}</p>
                     )}
-                />
+                </div>
+               </div>
               <div className="flex gap-2">
                 <Button type="submit" disabled={isLoading}>{isLoading ? "Saving..." : "Save Changes"}</Button>
                 <Button variant="outline" onClick={() => router.back()}>Cancel</Button>

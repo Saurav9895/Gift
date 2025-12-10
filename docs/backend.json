@@ -64,18 +64,27 @@
         "quantity": {
             "type": "number"
         },
-        "imageUrl": {
-          "type": "string",
-          "format": "uri"
+        "imageUrls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
         },
         "category": {
           "type": "string"
+        },
+        "deliveryTime": {
+            "type": "string"
+        },
+        "estimatedArrival": {
+            "type": "string"
         }
       },
       "required": [
         "name",
         "price",
-        "imageUrl",
+        "imageUrls",
         "category",
         "originalPrice",
         "discountedPrice",
@@ -299,5 +308,3 @@
     }
   }
 }
-
-    
