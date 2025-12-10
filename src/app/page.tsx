@@ -7,6 +7,14 @@ import HeroBanner from '@/components/layout/HeroBanner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import * as React from "react"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 export default function Home() {
   const { products, loading } = useProducts({ limit: 8 });
@@ -15,31 +23,46 @@ export default function Home() {
     <>
       <HeroBanner />
       <div className="container mx-auto px-4 py-16">
-        <header className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-headline font-bold text-foreground">
-            Featured Gifts
-          </h2>
-          <p className="text-lg text-muted-foreground mt-2">
-            Handpicked for you, by us.
-          </p>
+        <header className="flex justify-between items-end mb-12">
+            <div>
+                 <p className="text-sm font-bold text-primary mb-2">SPECIAL DISHES</p>
+                 <h2 className="text-3xl md:text-4xl font-headline font-bold text-foreground leading-tight">
+                    Standout Dishes<br/>From Our Menu
+                </h2>
+            </div>
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {loading 
-            ? Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="flex flex-col space-y-3">
-                  <Skeleton className="h-[225px] w-full rounded-xl" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-[250px]" />
-                    <Skeleton className="h-4 w-[200px]" />
-                  </div>
-                </div>
-              ))
-            : products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))
-          }
-        </div>
+        <Carousel
+          opts={{
+            align: "start",
+          }}
+          className="w-full"
+        >
+          <CarouselContent>
+            {loading 
+              ? Array.from({ length: 8 }).map((_, i) => (
+                  <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                    <div className="p-1">
+                      <div className="flex flex-col space-y-3">
+                        <Skeleton className="h-[300px] w-full rounded-xl" />
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))
+              : products.map((product) => (
+                  <CarouselItem key={product.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                     <div className="p-1">
+                        <ProductCard product={product} />
+                     </div>
+                  </CarouselItem>
+                ))
+            }
+          </CarouselContent>
+          <div className="hidden md:block">
+            <CarouselPrevious className="absolute top-[-5rem] right-16" />
+            <CarouselNext className="absolute top-[-5rem] right-4" />
+          </div>
+        </Carousel>
          <div className="text-center mt-16">
           <Button asChild size="lg">
             <Link href="/products">View All Products</Link>
