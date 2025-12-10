@@ -32,7 +32,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     : 0;
   
   const originalPrice = product.originalPrice ?? product.price;
-  const discountedPrice = product.discountedPrice ?? product.price;
+  const discountedPrice = typeof product.discountedPrice === 'number' ? product.discountedPrice : product.price;
 
   const hasDiscount = originalPrice > discountedPrice;
   const discountPercentage = hasDiscount 
@@ -85,3 +85,4 @@ export default function ProductCard({ product }: ProductCardProps) {
     </Card>
   );
 }
+
