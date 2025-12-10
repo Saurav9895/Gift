@@ -1,6 +1,6 @@
 
 import { Product } from '@/types';
-import { collection, addDoc, getDocs, onSnapshot, doc, getDoc, query, where, limit, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, onSnapshot, doc, getDoc, query, where, limit, updateDoc, deleteDoc, orderBy, QueryConstraint } from 'firebase/firestore';
 import { db } from './firebase';
 import { useEffect, useState } from 'react';
 
@@ -57,27 +57,42 @@ export const getProductById = async (id: string): Promise<Product | null> => {
     }
 };
 
-export const useProducts = (options?: { category?: string; limit?: number, excludeId?: string }) => {
+export type SortOption = "name-asc" | "name-desc" | "price-asc" | "price-desc";
+
+export const useProducts = (options?: { category?: string; limit?: number; excludeId?: string; search?: string; sort?: SortOption }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let q = query(productsCollection);
+    const constraints: QueryConstraint[] = [];
     
     if (options?.category) {
-        q = query(q, where('category', '==', options.category));
+        constraints.push(where('category', '==', options.category));
+    }
+    if (options?.sort) {
+        const [field, direction] = options.sort.split('-');
+        constraints.push(orderBy(field === 'name' ? 'name' : 'price', direction as 'asc' | 'desc'));
     }
     if (options?.limit) {
-        q = query(q, limit(options.limit));
+        constraints.push(limit(options.limit));
     }
+
+    const q = query(productsCollection, ...constraints);
 
     const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
         let productsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+        
+        if (options?.search) {
+            const searchTerm = options.search.toLowerCase();
+            productsList = productsList.filter(p => p.name.toLowerCase().includes(searchTerm));
+        }
+
         if (options?.excludeId) {
             productsList = productsList.filter(p => p.id !== options.excludeId);
         }
+
         setProducts(productsList);
         setLoading(false);
       },
@@ -89,7 +104,7 @@ export const useProducts = (options?: { category?: string; limit?: number, exclu
     );
 
     return () => unsubscribe();
-  }, [options?.category, options?.limit, options?.excludeId]);
+  }, [options?.category, options?.limit, options?.excludeId, options?.search, options?.sort]);
 
   return { products, loading, error };
 }
