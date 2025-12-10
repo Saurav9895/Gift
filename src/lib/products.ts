@@ -16,6 +16,21 @@ export const addProduct = async (product: Omit<Product, 'id'>) => {
   }
 };
 
+export const duplicateProduct = async (product: Product) => {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, ...productData } = product;
+        const newProduct = {
+            ...productData,
+            name: `${product.name} (Copy)`,
+        };
+        await addProduct(newProduct);
+    } catch (error) {
+        console.error('Error duplicating product: ', error);
+        throw new Error('Failed to duplicate product');
+    }
+}
+
 export const updateProduct = async (id: string, product: Partial<Product>) => {
     try {
         const docRef = doc(db, 'products', id);

@@ -4,8 +4,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Loader2, PlusCircle, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { useProducts, deleteProduct } from "@/lib/products";
+import { Loader2, PlusCircle, MoreHorizontal, Pencil, Trash2, Copy } from "lucide-react";
+import { useProducts, deleteProduct, duplicateProduct } from "@/lib/products";
 import {
   Table,
   TableBody,
@@ -21,6 +21,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
@@ -61,6 +62,23 @@ export default function ProductsPage() {
             setProductToDelete(null);
         }
     };
+    
+    const handleDuplicate = async (product: Product) => {
+        try {
+            await duplicateProduct(product);
+            toast({
+                title: "Product Duplicated",
+                description: `A copy of "${product.name}" has been created.`,
+            });
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to duplicate product.",
+            });
+        }
+    };
+
 
   return (
     <>
@@ -132,6 +150,11 @@ export default function ProductsPage() {
                                         Edit
                                       </Link>
                                     </DropdownMenuItem>
+                                     <DropdownMenuItem onClick={() => handleDuplicate(product)}>
+                                        <Copy className="mr-2 h-4 w-4" />
+                                        Duplicate
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
                                      <DropdownMenuItem className="text-destructive" onClick={() => setProductToDelete(product)}>
                                         <Trash2 className="mr-2 h-4 w-4" />
                                         Delete

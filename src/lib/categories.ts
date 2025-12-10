@@ -1,3 +1,4 @@
+
 import { Category } from '@/types';
 import { collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
@@ -13,6 +14,21 @@ export const addCategory = async (category: Omit<Category, 'id'>) => {
     console.error('Error adding category: ', error);
     throw new Error('Failed to add category');
   }
+};
+
+export const duplicateCategory = async (category: Category) => {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, ...categoryData } = category;
+        const newCategory = {
+            ...categoryData,
+            name: `${category.name} (Copy)`,
+        };
+        await addCategory(newCategory);
+    } catch (error) {
+        console.error('Error duplicating category: ', error);
+        throw new Error('Failed to duplicate category');
+    }
 };
 
 export const updateCategory = async (id: string, category: Partial<Category>) => {
