@@ -81,7 +81,6 @@ export const useProducts = (options?: { category?: string; limit?: number; exclu
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let q = query(productsCollection);
     const constraints: QueryConstraint[] = [];
 
     if (options?.category) {
@@ -96,9 +95,7 @@ export const useProducts = (options?: { category?: string; limit?: number; exclu
         constraints.push(limit(options.limit));
     }
 
-    if (constraints.length > 0) {
-        q = query(productsCollection, ...constraints);
-    }
+    const q = query(productsCollection, ...constraints);
 
     const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
