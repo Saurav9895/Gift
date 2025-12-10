@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-provider";
 import { useOrder } from "@/lib/orders";
-import { Loader2, CheckCircle, Package, Truck, HomeIcon, Bike } from "lucide-react";
+import { Loader2, CheckCircle, Package, Truck, HomeIcon, Bike, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
@@ -12,6 +12,8 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const statusSteps = [
     { name: "Processing", status: "Processing", icon: Package },
@@ -25,6 +27,7 @@ export default function OrderDetailPage() {
     const orderId = Array.isArray(id) ? id[0] : id;
     const { user } = useAuth();
     const { order, loading, error } = useOrder(user?.uid, orderId);
+    const router = useRouter();
 
     if (loading) {
         return (
@@ -53,10 +56,20 @@ export default function OrderDetailPage() {
     return (
         <div className="bg-muted/20">
             <div className="container mx-auto px-4 py-12">
+                 <header className="flex items-center gap-4 mb-8">
+                    <Button variant="outline" size="icon" onClick={() => router.back()}>
+                        <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                    <h1 className="text-2xl font-bold font-headline">Track Your Order</h1>
+                    <Button variant="outline" className="ml-auto" asChild>
+                         <Link href="/profile/orders">Back to List</Link>
+                    </Button>
+                </header>
+
                 <div className="max-w-4xl mx-auto space-y-8">
                      <Card>
                         <CardHeader>
-                            <CardTitle className="text-2xl font-headline">Track Your Order</CardTitle>
+                            <CardTitle>Order Status</CardTitle>
                             <CardDescription>See the current status of your delivery.</CardDescription>
                         </CardHeader>
                         <CardContent>

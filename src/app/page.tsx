@@ -1,12 +1,15 @@
+
 "use client";
 
 import { useProducts } from '@/lib/products';
 import ProductCard from '@/components/ProductCard';
 import HeroBanner from '@/components/layout/HeroBanner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function Home() {
-  const { products, loading } = useProducts();
+  const { products, loading } = useProducts({ limit: 8 });
 
   return (
     <>
@@ -36,6 +39,11 @@ export default function Home() {
                 <ProductCard key={product.id} product={product} />
               ))
           }
+        </div>
+         <div className="text-center mt-16">
+          <Button asChild size="lg">
+            <Link href="/products">View All Products</Link>
+          </Button>
         </div>
       </div>
     </>
