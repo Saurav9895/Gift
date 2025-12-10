@@ -188,7 +188,7 @@ export default function SettingsPage() {
   const handleAddProduct = (id: string) => {
     if (!id || form.getValues('featuredProductIds').includes(id)) return;
     if (form.getValues('featuredProductIds').length < 8) {
-        appendProduct(id);
+        appendProduct({ value: id } as any);
     } else {
         toast({ variant: 'destructive', title: "Limit reached", description: "You can only feature up to 8 products."});
     }
@@ -197,7 +197,7 @@ export default function SettingsPage() {
   const handleAddCategory = (id: string) => {
     if (!id || form.getValues('featuredCategoryIds').includes(id)) return;
     if (form.getValues('featuredCategoryIds').length < 5) {
-        appendCategory(id);
+        appendCategory({ value: id } as any);
     } else {
         toast({ variant: 'destructive', title: "Limit reached", description: "You can only feature up to 5 categories."});
     }

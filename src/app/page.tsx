@@ -29,7 +29,7 @@ function PopularCategories() {
   React.useEffect(() => {
     const fetchHomepageSettings = async () => {
       setIsLoading(true);
-      const settingsDoc = await getDoc(doc(db, "site-settings", "homepage"));
+      const settingsDoc = await getDoc(doc(db, "site-settings", "store"));
       if (settingsDoc.exists()) {
         const { featuredCategoryIds } = settingsDoc.data();
         if (featuredCategoryIds && featuredCategoryIds.length > 0) {
@@ -106,7 +106,7 @@ export default function Home() {
   React.useEffect(() => {
     const fetchHomepageSettings = async () => {
       setLoading(true);
-      const settingsDoc = await getDoc(doc(db, "site-settings", "homepage"));
+      const settingsDoc = await getDoc(doc(db, "site-settings", "store"));
       if (settingsDoc.exists()) {
         const { featuredProductIds } = settingsDoc.data();
         if (featuredProductIds && featuredProductIds.length > 0) {
@@ -180,3 +180,5 @@ export default function Home() {
     </>
   );
 }
+
+    

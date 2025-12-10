@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useAuth } from '@/lib/auth-provider';
@@ -42,3 +43,5 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   );
 }
+
+    
