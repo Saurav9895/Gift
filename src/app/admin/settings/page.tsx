@@ -63,7 +63,11 @@ const ReorderableList = ({
                     className="flex items-center gap-4 p-2 border rounded-lg bg-background"
                 >
                     <span className="text-sm font-bold text-muted-foreground">#{index + 1}</span>
-                    <Image src={item.imageUrl} alt={item.name} width={32} height={32} className="rounded-md object-cover"/>
+                    {item.imageUrl ? (
+                        <Image src={item.imageUrl} alt={item.name} width={32} height={32} className="rounded-md object-cover"/>
+                    ) : (
+                        <div className="w-8 h-8 rounded-md bg-muted"></div>
+                    )}
                     <span className="flex-grow font-medium text-sm">{item.name}</span>
                     <div className="flex gap-1">
                         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onMove(index, index - 1)} disabled={index === 0}>
@@ -177,7 +181,7 @@ export default function SettingsPage() {
 
   const productOptions = products
     .filter(p => !form.getValues("featuredProductIds").includes(p.id))
-    .map(p => ({ label: p.name, value: p.id, imageUrl: p.imageUrl }));
+    .map(p => ({ label: p.name, value: p.id, imageUrl: p.imageUrls?.[0] }));
 
   const categoryOptions = categories
     .filter(c => !form.getValues("featuredCategoryIds").includes(c.id))
