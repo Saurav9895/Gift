@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { LogOut, KeyRound, Phone, Home, List, MapPin, Pencil, Trash2, PlusCircle, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useAddresses, addAddress, deleteAddress } from "@/lib/addresses";
+import { useAddresses, addAddress, deleteAddress, updateAddress } from "@/lib/addresses";
 import type { Address } from "@/types";
 import {
   Dialog,
@@ -53,7 +53,9 @@ import {
 
 const addressSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  addressLine1: z.string().min(1, "Address is required"),
+  homeFloor: z.string().min(1, "This field is required"),
+  locality: z.string().min(1, "This field is required"),
+  landmark: z.string().optional(),
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   postalCode: z.string().min(1, "Postal code is required"),
@@ -80,7 +82,9 @@ export default function ProfilePage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [isPhoneOpen, setIsPhoneOpen] = useState(false);
 
@@ -97,8 +101,8 @@ export default function ProfilePage() {
   const addressForm = useForm<z.infer<typeof addressSchema>>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      name: "", addressLine1: "", city: "",
-      state: "", postalCode: "", country: "", phone: "",
+      name: "", homeFloor: "", locality: "", landmark: "",
+      city: "", state: "", postalCode: "", country: "", phone: "",
     },
   });
 
@@ -133,13 +137,15 @@ export default function ProfilePage() {
           const data = await response.json();
           const { address } = data;
           addressForm.reset({
-            addressLine1: `${address.road || ''}${address.house_number ? ' ' + address.house_number : ''}`,
+            locality: `${address.road || ''}${address.house_number ? ' ' + address.house_number : ''}`,
             city: address.city || address.town || address.village || '',
             state: address.state || '',
             postalCode: address.postcode || '',
             country: address.country || '',
             name: userProfile?.name || '',
             phone: userProfile?.phone || '',
+            homeFloor: '',
+            landmark: '',
           });
            toast({ title: "Location fetched!", description: "Address fields have been pre-filled." });
         } catch (error) {
@@ -151,20 +157,40 @@ export default function ProfilePage() {
       (error) => {
         toast({ variant: "destructive", title: "Unable to retrieve your location.", description: error.message });
         setIsFetchingLocation(false);
-      }
+      },
+      { enableHighAccuracy: true }
     );
   };
 
+  const handleOpenAddDialog = () => {
+    setEditingAddress(null);
+    addressForm.reset({
+        name: userProfile?.name || '',
+        phone: userProfile?.phone || '',
+        homeFloor: '', locality: '', landmark: '', city: '', state: '', postalCode: '', country: ''
+    });
+    setIsAddressDialogOpen(true);
+  }
 
-  const onAddAddressSubmit = async (values: z.infer<typeof addressSchema>) => {
+  const handleOpenEditDialog = (address: Address) => {
+    setEditingAddress(address);
+    addressForm.reset(address);
+    setIsAddressDialogOpen(true);
+  }
+
+  const onAddressSubmit = async (values: z.infer<typeof addressSchema>) => {
     if (!user) return;
     try {
-      await addAddress(user.uid, values);
-      toast({ title: "Address added successfully" });
-      setIsAddAddressOpen(false);
-      addressForm.reset();
+      if (editingAddress) {
+        await updateAddress(user.uid, editingAddress.id, values);
+        toast({ title: "Address updated successfully" });
+      } else {
+        await addAddress(user.uid, values);
+        toast({ title: "Address added successfully" });
+      }
+      setIsAddressDialogOpen(false);
     } catch (error) {
-      toast({ variant: "destructive", title: "Failed to add address" });
+      toast({ variant: "destructive", title: editingAddress ? "Failed to update address" : "Failed to add address" });
     }
   };
 
@@ -317,7 +343,7 @@ export default function ProfilePage() {
                         <CardTitle className="text-xl">Shipping Addresses</CardTitle>
                         <CardDescription>Manage your saved addresses.</CardDescription>
                     </div>
-                    <Button onClick={() => setIsAddAddressOpen(true)}>
+                    <Button onClick={handleOpenAddDialog}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Add New
                     </Button>
                 </CardHeader>
@@ -334,15 +360,12 @@ export default function ProfilePage() {
                             <Home className="h-5 w-5 text-muted-foreground mt-1"/>
                             <div className="flex-grow">
                                 <p className="font-semibold">{address.name}</p>
-                                <p className="text-sm text-muted-foreground">{address.addressLine1}, {address.city}, {address.state} {address.postalCode}</p>
+                                <p className="text-sm text-muted-foreground">{`${address.homeFloor}, ${address.locality}, ${address.city}, ${address.state} ${address.postalCode}`}</p>
                                 <p className="text-sm text-muted-foreground">{address.country}</p>
                                 <p className="text-sm text-muted-foreground">Phone: {address.phone}</p>
-                                <Button variant="link" className="p-0 h-auto text-primary">
-                                    <MapPin className="mr-1 h-4 w-4" /> View on Map
-                                </Button>
                             </div>
                              <div className="flex flex-col sm:flex-row sm:items-start gap-2">
-                                <Button variant="ghost" size="icon" disabled>
+                                <Button variant="ghost" size="icon" onClick={() => handleOpenEditDialog(address)}>
                                     <Pencil className="h-4 w-4"/>
                                 </Button>
                                  <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => setAddressToDelete(address)}>
@@ -357,36 +380,46 @@ export default function ProfilePage() {
       </div>
     </div>
 
-    {/* Add Address Dialog */}
-    <Dialog open={isAddAddressOpen} onOpenChange={setIsAddAddressOpen}>
-        <DialogContent className="sm:max-w-md flex flex-col max-h-[80vh]">
+    {/* Add/Edit Address Dialog */}
+    <Dialog open={isAddressDialogOpen} onOpenChange={setIsAddressDialogOpen}>
+        <DialogContent className="sm:max-w-md flex flex-col max-h-[90vh] sm:max-h-[80vh]">
             <DialogHeader>
-                <DialogTitle>Add New Address</DialogTitle>
+                <DialogTitle>{editingAddress ? 'Edit Address' : 'Add New Address'}</DialogTitle>
                 <DialogDescription>
                     Fill in the details below or fetch your current location.
                 </DialogDescription>
             </DialogHeader>
             <Form {...addressForm}>
-                <form onSubmit={addressForm.handleSubmit(onAddAddressSubmit)} className="flex-1 flex flex-col min-h-0">
+                <form onSubmit={addressForm.handleSubmit(onAddressSubmit)} className="flex-1 flex flex-col min-h-0">
                     <div className="flex-1 overflow-y-auto px-1 py-4 space-y-4">
-                        <Button type="button" variant="outline" className="w-full" onClick={handleFetchLocation} disabled={isFetchingLocation}>
-                            {isFetchingLocation ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
-                            ) : (
-                                <MapPin className="mr-2 h-4 w-4" />
-                            )}
-                            Fetch my current location
-                        </Button>
-                        <div className="relative my-4">
-                            <Separator />
-                            <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-sm text-muted-foreground">OR</span>
-                        </div>
+                        {!editingAddress && (
+                            <>
+                                <Button type="button" variant="outline" className="w-full" onClick={handleFetchLocation} disabled={isFetchingLocation}>
+                                    {isFetchingLocation ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                                    ) : (
+                                        <MapPin className="mr-2 h-4 w-4" />
+                                    )}
+                                    Fetch my current location
+                                </Button>
+                                <div className="relative my-4">
+                                    <Separator />
+                                    <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-sm text-muted-foreground">OR</span>
+                                </div>
+                            </>
+                        )}
 
                         <FormField control={addressForm.control} name="name" render={({ field }) => (
-                            <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="e.g. John Doe" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
-                        <FormField control={addressForm.control} name="addressLine1" render={({ field }) => (
-                            <FormItem><FormLabel>Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormField control={addressForm.control} name="homeFloor" render={({ field }) => (
+                            <FormItem><FormLabel>Home/Floor/Building</FormLabel><FormControl><Input placeholder="e.g. Appt 123, Sunshine Apartments" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={addressForm.control} name="locality" render={({ field }) => (
+                            <FormItem><FormLabel>Locality/Area/Street</FormLabel><FormControl><Input placeholder="e.g. Main Street" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={addressForm.control} name="landmark" render={({ field }) => (
+                            <FormItem><FormLabel>Landmark (Optional)</FormLabel><FormControl><Input placeholder="e.g. Near City Park" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                         <div className="grid grid-cols-2 gap-4">
                             <FormField control={addressForm.control} name="city" render={({ field }) => (
@@ -408,8 +441,8 @@ export default function ProfilePage() {
                             <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
                     </div>
-                    <DialogFooter className="pt-4 border-t mt-auto">
-                        <Button type="button" variant="outline" onClick={() => setIsAddAddressOpen(false)}>Cancel</Button>
+                    <DialogFooter className="pt-4 border-t mt-auto bg-background">
+                        <Button type="button" variant="outline" onClick={() => setIsAddressDialogOpen(false)}>Cancel</Button>
                         <Button type="submit" disabled={addressForm.formState.isSubmitting}>
                             {addressForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
                             Save Address
@@ -496,3 +529,5 @@ export default function ProfilePage() {
     </>
   );
 }
+
+    

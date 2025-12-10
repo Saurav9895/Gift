@@ -45,10 +45,14 @@ export interface Review {
 export interface Address {
   id: string;
   name: string;
-  addressLine1: string;
+  homeFloor: string;
+  locality: string;
+  landmark?: string;
   city: string;
   state: string;
   postalCode: string;
   country: string;
   phone: string;
 }
+
+    

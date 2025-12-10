@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -7,7 +8,18 @@ import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-const ToastProvider = ToastPrimitives.Provider
+const ToastProvider = React.forwardRef<
+  React.ElementRef<typeof ToastPrimitives.Provider>,
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Provider>
+>(({ children, ...props }, ref) => {
+  return (
+    <ToastPrimitives.Provider {...props}>
+      {children}
+    </ToastPrimitives.Provider>
+  )
+})
+ToastProvider.displayName = ToastPrimitives.Provider.displayName
+
 
 const ToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Viewport>,
@@ -127,3 +139,5 @@ export {
   ToastClose,
   ToastAction,
 }
+
+    

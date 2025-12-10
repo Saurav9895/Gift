@@ -1,6 +1,6 @@
 
 import { Address } from '@/types';
-import { collection, addDoc, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { useEffect, useState } from 'react';
 
@@ -12,6 +12,16 @@ export const addAddress = async (userId: string, address: Omit<Address, 'id'>) =
     } catch (error) {
         console.error('Error adding address: ', error);
         throw new Error('Failed to add address');
+    }
+};
+
+export const updateAddress = async (userId: string, addressId: string, address: Partial<Address>) => {
+    try {
+        const docRef = doc(db, 'users', userId, 'addresses', addressId);
+        await updateDoc(docRef, address);
+    } catch (error) {
+        console.error('Error updating address: ', error);
+        throw new Error('Failed to update address');
     }
 };
 
@@ -56,3 +66,5 @@ export const useAddresses = (userId?: string) => {
 
     return { addresses, loading, error };
 }
+
+    

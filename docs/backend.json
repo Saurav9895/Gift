@@ -138,9 +138,17 @@
           "type": "string",
           "description": "Recipient's name."
         },
-        "addressLine1": {
-          "type": "string",
-          "description": "Street address, P.O. box, company name, c/o"
+        "homeFloor": {
+            "type": "string",
+            "description": "House/Flat number, Floor, Building."
+        },
+        "locality": {
+            "type": "string",
+            "description": "Locality, Area, Street name."
+        },
+        "landmark": {
+            "type": "string",
+            "description": "A nearby landmark."
         },
         "city": {
           "type": "string",
@@ -165,7 +173,8 @@
       },
       "required": [
         "name",
-        "addressLine1",
+        "homeFloor",
+        "locality",
         "city",
         "state",
         "postalCode",
@@ -212,3 +221,5 @@
     }
   }
 }
+
+    
