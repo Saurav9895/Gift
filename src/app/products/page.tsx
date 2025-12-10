@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useProducts, SortOption } from '@/lib/products';
@@ -13,13 +12,21 @@ import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Search, LayoutGrid, List } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { PaginationControls } from '@/components/ui/pagination';
+
+const PRODUCTS_PER_PAGE = 15;
 
 export default function AllProductsPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortOption, setSortOption] = useState<SortOption>('name-asc');
+  const router = useRouter();
+  const searchParams = useSearchParams();
   
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get('category'));
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [sortOption, setSortOption] = useState<SortOption>('name-asc');
+  const [currentPage, setCurrentPage] = useState(1);
+
   const { products, loading } = useProducts({
     category: selectedCategory || undefined,
     search: searchTerm,
@@ -27,9 +34,33 @@ export default function AllProductsPage() {
   });
   const { categories, loading: categoriesLoading } = useCategories();
 
+  useEffect(() => {
+    setSelectedCategory(searchParams.get('category'));
+    setSearchTerm(searchParams.get('search') || '');
+  }, [searchParams]);
+
+  const handleCategorySelect = (categoryName: string | null) => {
+    setSelectedCategory(categoryName);
+    const params = new URLSearchParams(searchParams);
+    if (categoryName) {
+      params.set('category', categoryName);
+    } else {
+      params.delete('category');
+    }
+    router.push(`/products?${params.toString()}`);
+  };
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   }
+
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+    const endIndex = startIndex + PRODUCTS_PER_PAGE;
+    return products.slice(startIndex, endIndex);
+  }, [products, currentPage]);
+
+  const totalPages = Math.ceil(products.length / PRODUCTS_PER_PAGE);
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -43,6 +74,14 @@ export default function AllProductsPage() {
             <BreadcrumbItem>
               <BreadcrumbPage>Products</BreadcrumbPage>
             </BreadcrumbItem>
+            {selectedCategory && (
+                <>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="capitalize">{selectedCategory}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </>
+            )}
           </BreadcrumbList>
         </Breadcrumb>
         <h1 className="text-4xl font-headline font-bold text-foreground mt-4">
@@ -60,7 +99,7 @@ export default function AllProductsPage() {
             <Button
                 variant={!selectedCategory ? 'secondary' : 'outline'}
                 className="rounded-lg h-14 px-6"
-                onClick={() => setSelectedCategory(null)}
+                onClick={() => handleCategorySelect(null)}
             >
                 All
             </Button>
@@ -71,7 +110,7 @@ export default function AllProductsPage() {
                 <Button
                     key={category.id}
                     variant={selectedCategory === category.name ? 'secondary' : 'outline'}
-                    onClick={() => setSelectedCategory(category.name)}
+                    onClick={() => handleCategorySelect(category.name)}
                     className="rounded-lg flex items-center gap-3 h-14 whitespace-nowrap p-2 pr-4"
                 >
                     <div className="relative h-10 w-10 rounded-md overflow-hidden bg-muted flex-shrink-0">
@@ -118,19 +157,18 @@ export default function AllProductsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
         {loading 
           ? Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="flex space-x-4 border rounded-lg p-4">
-                <Skeleton className="h-32 w-32" />
-                <div className="space-y-2 flex-1">
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                  <Skeleton className="h-4 w-1/4" />
+              <div key={i} className="flex flex-col space-y-3">
+                <Skeleton className="h-[250px] w-full rounded-xl" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-[250px]" />
+                  <Skeleton className="h-4 w-[200px]" />
                 </div>
               </div>
             ))
-          : products.map((product) => (
+          : paginatedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))
         }
@@ -138,6 +176,16 @@ export default function AllProductsPage() {
       {!loading && products.length === 0 && (
         <div className="text-center col-span-full py-16">
             <p className="text-muted-foreground">No products found matching your criteria.</p>
+        </div>
+      )}
+
+      {!loading && products.length > PRODUCTS_PER_PAGE && (
+        <div className="mt-12 flex justify-center">
+            <PaginationControls 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+            />
         </div>
       )}
     </div>
