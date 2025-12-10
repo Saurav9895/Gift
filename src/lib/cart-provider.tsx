@@ -40,15 +40,21 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
 
   const addToCart = (product: Product, quantity: number = 1) => {
-    setCartItems(prevItems => {
-      const itemExists = prevItems.find(item => item.id === product.id);
-      if (itemExists) {
-        return prevItems.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
-        );
-      }
-      return [...prevItems, { ...product, quantity }];
-    });
+    let itemAdded = false;
+    let newItems = cartItems;
+
+    const itemExists = cartItems.find(item => item.id === product.id);
+    if (itemExists) {
+        newItems = cartItems.map(item =>
+        item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+      );
+    } else {
+        newItems = [...cartItems, { ...product, quantity }];
+        itemAdded = true;
+    }
+    
+    setCartItems(newItems);
+    
     toast({
       title: "Added to cart",
       description: `${quantity} x ${product.name} has been added to your cart.`,
