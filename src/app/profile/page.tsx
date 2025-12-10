@@ -50,6 +50,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import Link from "next/link";
 
 const addressSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -332,7 +333,9 @@ export default function ProfilePage() {
                                 <p className="text-sm text-muted-foreground">View your order history and track shipments.</p>
                             </div>
                         </div>
-                        <Button variant="outline">View Orders</Button>
+                        <Button variant="outline" asChild>
+                            <Link href="/profile/orders">View Orders</Link>
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
@@ -529,5 +532,3 @@ export default function ProfilePage() {
     </>
   );
 }
-
-    

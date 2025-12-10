@@ -55,4 +55,23 @@ export interface Address {
   phone: string;
 }
 
-    
+export interface OrderItem {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    imageUrl: string;
+}
+
+export interface Order {
+    id: string;
+    userId: string;
+    items: OrderItem[];
+    shippingAddress: Address;
+    paymentMethod: string;
+    subtotal: number;
+    deliveryFee: number;
+    total: number;
+    status: 'Processing' | 'Shipped' | 'Delivered' | 'Canceled';
+    createdAt: any;
+}

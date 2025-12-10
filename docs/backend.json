@@ -181,6 +181,36 @@
         "country",
         "phone"
       ]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Represents a customer order.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "items": { 
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "price": { "type": "number" },
+                    "quantity": { "type": "number" },
+                    "imageUrl": { "type": "string" }
+                },
+                "required": ["id", "name", "price", "quantity", "imageUrl"]
+            }
+        },
+        "shippingAddress": { "$ref": "#/entities/Address" },
+        "paymentMethod": { "type": "string" },
+        "subtotal": { "type": "number" },
+        "deliveryFee": { "type": "number" },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["Processing", "Shipped", "Delivered", "Canceled"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "items", "shippingAddress", "paymentMethod", "total", "status", "createdAt"]
     }
   },
   "auth": {
@@ -200,6 +230,10 @@
             "$ref": "#/entities/Address"
         },
         "description": "Stores user shipping addresses."
+    },
+    "/users/{userId}/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Stores orders for a specific user."
     },
     "/products/{productId}": {
       "schema": {
@@ -221,5 +255,3 @@
     }
   }
 }
-
-    

@@ -47,7 +47,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
+import { useRouter } from "next/navigation";
+import { createOrder } from "@/lib/orders";
+import type { Address } from "@/types";
 
 const addressSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -62,11 +64,16 @@ const addressSchema = z.object({
 });
 
 export default function CheckoutPage() {
-  const { cartItems, cartCount } = useCart();
+  const { cartItems, cartCount, clearCart } = useCart();
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const { user, userProfile } = useAuth();
   const { addresses, loading: addressesLoading } = useAddresses(user?.uid);
   const { toast } = useToast();
+  const router = useRouter();
+
+  const [selectedAddressId, setSelectedAddressId] = useState<string | undefined>(undefined);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("cod");
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
@@ -139,8 +146,49 @@ export default function CheckoutPage() {
       toast({ variant: "destructive", title: "Failed to add address" });
     }
   };
+
+  const handlePlaceOrder = async () => {
+    if (!user) {
+        toast({ variant: "destructive", title: "You must be logged in to place an order."});
+        return;
+    }
+    if (!selectedAddressId) {
+        toast({ variant: "destructive", title: "Please select a shipping address."});
+        return;
+    }
+
+    const selectedAddress = addresses.find(addr => addr.id === selectedAddressId);
+    if (!selectedAddress) {
+        toast({ variant: "destructive", title: "Invalid shipping address."});
+        return;
+    }
+
+    setIsPlacingOrder(true);
+    try {
+        const orderData = {
+            userId: user.uid,
+            items: cartItems,
+            shippingAddress: selectedAddress as Address, // The find check is above
+            paymentMethod: selectedPaymentMethod,
+            subtotal,
+            deliveryFee,
+            total,
+            status: "Processing",
+        };
+        const orderId = await createOrder(orderData);
+        clearCart();
+        toast({ title: "Order Placed!", description: "Thank you for your purchase."});
+        router.push(`/order-confirmation/${orderId}`);
+
+    } catch (error) {
+        console.error("Failed to place order:", error);
+        toast({ variant: "destructive", title: "Failed to place order.", description: "Please try again."});
+    } finally {
+        setIsPlacingOrder(false);
+    }
+  }
   
-  if (cartCount === 0) {
+  if (cartCount === 0 && !isPlacingOrder) {
     return (
         <div className="container mx-auto px-4 py-12 text-center">
             <h1 className="text-2xl font-semibold mb-4">Your Cart is Empty</h1>
@@ -176,7 +224,7 @@ export default function CheckoutPage() {
                   <Loader2 className="h-6 w-6 animate-spin"/>
                 </div>
               ) : (
-                <Select>
+                <Select onValueChange={setSelectedAddressId} value={selectedAddressId}>
                     <SelectTrigger>
                         <SelectValue placeholder="Select a saved address" />
                     </SelectTrigger>
@@ -197,7 +245,7 @@ export default function CheckoutPage() {
               <CardTitle>Payment Method</CardTitle>
             </CardHeader>
             <CardContent>
-              <RadioGroup defaultValue="cod">
+              <RadioGroup value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
                 <div className="space-y-4">
                   <Label htmlFor="cod" className="flex items-center space-x-3 p-4 border rounded-md has-[:checked]:border-primary has-[:checked]:bg-primary/5">
                     <RadioGroupItem value="cod" id="cod" />
@@ -259,8 +307,9 @@ export default function CheckoutPage() {
                     </div>
                 </CardContent>
               </Card>
-              <Button size="lg" className="w-full">
-                  Place Order
+              <Button size="lg" className="w-full" onClick={handlePlaceOrder} disabled={isPlacingOrder}>
+                  {isPlacingOrder ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
+                  {isPlacingOrder ? "Placing Order..." : "Place Order"}
               </Button>
           </div>
         </div>
@@ -338,5 +387,3 @@ export default function CheckoutPage() {
     </>
   );
 }
-
-    
