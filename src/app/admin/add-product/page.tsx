@@ -24,9 +24,8 @@ import { addProduct } from "@/lib/products";
 import { useCategories } from "@/lib/categories";
 import { Combobox } from "@/components/ui/combobox";
 import { ImageUploader } from "@/components/ImageUploader";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Trash2, PlusCircle } from "lucide-react";
-import { format, addDays } from 'date-fns';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Product name must be at least 2 characters." }),
@@ -38,7 +37,6 @@ const formSchema = z.object({
   imageUrls: z.array(z.string().url()).min(1, { message: "Please provide at least one image URL." }),
   category: z.string().min(1, { message: "Please select a category." }),
   deliveryTime: z.string().min(1, { message: "Delivery time is required." }),
-  estimatedArrival: z.string().min(1, { message: "Estimated arrival is required." }),
 });
 
 export default function AddProductPage() {
@@ -63,7 +61,6 @@ export default function AddProductPage() {
       imageUrls: [],
       category: "",
       deliveryTime: "3-4 Days",
-      estimatedArrival: "",
     },
   });
 
@@ -71,30 +68,6 @@ export default function AddProductPage() {
     control: form.control,
     name: "imageUrls",
   });
-
-    const deliveryTime = form.watch("deliveryTime");
-
-    useEffect(() => {
-        if (deliveryTime) {
-            const days = deliveryTime.match(/\d+/g); // Extracts numbers from "3-4 Days"
-            if (days && days.length > 0) {
-                const now = new Date();
-                const startDay = addDays(now, parseInt(days[0]));
-                const endDay = days.length > 1 ? addDays(now, parseInt(days[1])) : startDay;
-                
-                const formatRange = (start: Date, end: Date) => {
-                    const startMonth = format(start, 'MMM');
-                    const endMonth = format(end, 'MMM');
-                    if (startMonth === endMonth) {
-                        return `${format(start, 'd')}-${format(end, 'd MMM yyyy')}`;
-                    }
-                    return `${format(start, 'd MMM')} - ${format(end, 'd MMM yyyy')}`;
-                };
-                
-                form.setValue("estimatedArrival", formatRange(startDay, endDay));
-            }
-        }
-    }, [deliveryTime, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -227,17 +200,6 @@ export default function AddProductPage() {
                     <FormItem>
                       <FormLabel>Delivery Time</FormLabel>
                       <FormControl><Input placeholder="e.g., 3-4 Days" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="estimatedArrival"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estimated Arrival</FormLabel>
-                      <FormControl><Input placeholder="e.g., 10-12 Oct 2024" {...field} readOnly className="bg-muted" /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -76,9 +76,6 @@
         },
         "deliveryTime": {
             "type": "string"
-        },
-        "estimatedArrival": {
-            "type": "string"
         }
       },
       "required": [

@@ -22,8 +22,7 @@ import {
 import { useWishlist } from "@/lib/wishlist-provider";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-
-const SIZES = ["S", "M", "L", "XL", "XXL"];
+import { format, addDays } from "date-fns";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -33,7 +32,7 @@ export default function ProductDetailPage() {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState("S");
+  const [estimatedArrival, setEstimatedArrival] = useState('');
   
   const productImages = product?.imageUrls || [];
 
@@ -42,6 +41,26 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (product?.imageUrls?.[0]) {
       setMainImage(product.imageUrls[0]);
+    }
+
+    if (product?.deliveryTime) {
+      const days = product.deliveryTime.match(/\d+/g);
+      if (days && days.length > 0) {
+        const now = new Date();
+        const startDay = addDays(now, parseInt(days[0]));
+        const endDay = days.length > 1 ? addDays(now, parseInt(days[1])) : startDay;
+        
+        const formatRange = (start: Date, end: Date) => {
+            const startMonth = format(start, 'MMM');
+            const endMonth = format(end, 'MMM');
+            if (startMonth === endMonth) {
+                return `${format(start, 'd')}-${format(end, 'd MMM yyyy')}`;
+            }
+            return `${format(start, 'd MMM')} - ${format(end, 'd MMM yyyy')}`;
+        };
+        
+        setEstimatedArrival(formatRange(startDay, endDay));
+      }
     }
   }, [product]);
 
@@ -146,7 +165,7 @@ export default function ProductDetailPage() {
                 <Calendar className="h-5 w-5 text-muted-foreground"/>
                 <div>
                     <p className="font-medium">Estimated Arrival</p>
-                    <p className="text-muted-foreground text-sm">{product.estimatedArrival}</p>
+                    <p className="text-muted-foreground text-sm">{estimatedArrival}</p>
                 </div>
             </div>
           </div>
