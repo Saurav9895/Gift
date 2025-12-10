@@ -20,11 +20,18 @@ import {
 import { useAuth } from "@/lib/auth-provider";
 import { useCart } from "@/lib/cart-provider";
 import { useWishlist } from "@/lib/wishlist-provider";
+import { useEffect, useState } from "react";
 
 export default function Header() {
   const { user, userProfile, signOut, userRole } = useAuth();
   const { cartCount, setIsCartOpen } = useCart();
   const { wishlistCount } = useWishlist();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -98,13 +105,13 @@ export default function Header() {
               <Button variant="ghost" size="icon" aria-label="Wishlist">
                 <Heart className="h-5 w-5" />
               </Button>
-              {wishlistCount > 0 && <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{wishlistCount}</span>}
+              {isClient && wishlistCount > 0 && <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{wishlistCount}</span>}
             </Link>
             <div className="relative">
               <Button variant="ghost" size="icon" aria-label="Shopping Cart" onClick={() => setIsCartOpen(true)}>
                 <ShoppingCart className="h-5 w-5" />
               </Button>
-              {cartCount > 0 && <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{cartCount}</span>}
+              {isClient && cartCount > 0 && <span className="absolute top-0 right-0 text-xs text-white bg-primary rounded-full h-4 w-4 flex items-center justify-center">{cartCount}</span>}
             </div>
             {user ? (
               <DropdownMenu>
