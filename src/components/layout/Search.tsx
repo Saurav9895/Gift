@@ -72,7 +72,9 @@ export default function Search() {
                                     <li key={product.id}>
                                         <Link href={`/product/${product.id}`} className="flex items-center gap-4 p-2 rounded-md hover:bg-accent">
                                             <div className="relative h-10 w-10 flex-shrink-0 rounded-sm overflow-hidden border">
-                                                <Image src={product.imageUrl} alt={product.name} fill className="object-cover"/>
+                                                {product.imageUrls?.[0] && (
+                                                    <Image src={product.imageUrls[0]} alt={product.name} fill className="object-cover"/>
+                                                )}
                                             </div>
                                             <span className="text-sm font-medium text-foreground">{product.name}</span>
                                         </Link>
