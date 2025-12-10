@@ -37,44 +37,45 @@ export default function ProductCard({ product }: ProductCardProps) {
     : 0;
 
   return (
-    <Card className="w-full overflow-hidden transition-all duration-300 group border">
-      <div className="relative aspect-[4/5] w-full">
-        <Link href={`/product/${product.id}`} className="block h-full">
-            <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-            />
-        </Link>
-        {hasDiscount && (
+    <Card className="w-full overflow-hidden transition-all duration-300 group border flex">
+      <Link href={`/product/${product.id}`} className="block w-1/3 relative aspect-square">
+        <Image
+            src={product.imageUrl}
+            alt={product.name}
+            fill
+            className="object-cover"
+        />
+         {hasDiscount && (
             <Badge className="absolute top-2 left-2 bg-green-600 text-white hover:bg-green-700">{discountPercentage}% off</Badge>
         )}
-         <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Button variant="ghost" size="icon" className="h-8 w-8 bg-background/70 hover:bg-background rounded-full" onClick={(e) => { e.preventDefault(); toggleWishlist(product)}}>
-                <Heart className={cn("h-4 w-4", isWishlisted ? "fill-primary text-primary" : "text-muted-foreground")} />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 bg-background/70 hover:bg-background rounded-full" onClick={(e) => {e.preventDefault(); addToCart(product, 1)}}>
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-            </Button>
-        </div>
-      </div>
-      <CardContent className="p-4">
+      </Link>
+      <CardContent className="p-4 flex flex-col justify-between w-2/3">
         <div>
             <span className="text-xs text-muted-foreground capitalize">{product.category}</span>
-            <h2 className="text-md font-semibold mb-1 line-clamp-1">{product.name}</h2>
+            <h2 className="text-md font-semibold mb-1 line-clamp-2">
+              <Link href={`/product/${product.id}`} className="hover:underline">{product.name}</Link>
+            </h2>
              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
                 <Star className="h-4 w-4 text-yellow-400 fill-yellow-400"/>
                 <span>{averageRating.toFixed(1)}</span>
                 <span className="text-xs">({reviews.length})</span>
             </div>
         </div>
-        <div>
+        <div className="flex flex-col items-start gap-2">
             <div className="flex items-baseline gap-2">
                 <p className="text-lg font-bold text-primary">${product.discountedPrice.toFixed(2)}</p>
                 {hasDiscount && (
                     <p className="text-sm text-muted-foreground line-through">${product.originalPrice.toFixed(2)}</p>
                 )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button size="sm" className="h-8" onClick={(e) => {e.preventDefault(); addToCart(product, 1)}}>
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Add
+              </Button>
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={(e) => { e.preventDefault(); toggleWishlist(product)}}>
+                  <Heart className={cn("h-4 w-4", isWishlisted ? "fill-primary text-primary" : "text-muted-foreground")} />
+              </Button>
             </div>
         </div>
       </CardContent>
