@@ -75,8 +75,8 @@ export const getProductById = async (id: string): Promise<Product | null> => {
 
 export type SortOption = "name-asc" | "name-desc" | "price-asc" | "price-desc";
 
-export const useProducts = (options?: { category?: string; limit?: number; excludeId?: string; search?: string; sort?: SortOption }) => {
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
+export const useProducts = (options?: { limit?: number; excludeId?: string; }) => {
+  const [products, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -99,41 +99,21 @@ export const useProducts = (options?: { category?: string; limit?: number; exclu
     return () => unsubscribe();
   }, []);
 
-  const products = useMemo(() => {
-    let filteredProducts = [...allProducts];
-
-    if (options?.category) {
-        filteredProducts = filteredProducts.filter(p => p.category === options.category);
-    }
-
-    if (options?.search) {
-        const searchTerm = options.search.toLowerCase();
-        filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
-    }
-    
-    if (options?.sort) {
-        const [field, direction] = options.sort.split('-');
-        filteredProducts.sort((a, b) => {
-            const valA = field === 'name' ? a.name : a.price;
-            const valB = field === 'name' ? b.name : b.price;
-            if (valA < valB) return direction === 'asc' ? -1 : 1;
-            if (valA > valB) return direction === 'asc' ? 1 : -1;
-            return 0;
-        });
-    }
+  const filteredProducts = useMemo(() => {
+    let filtered = [...products];
 
     if (options?.excludeId) {
-        filteredProducts = filteredProducts.filter(p => p.id !== options.excludeId);
+        filtered = filtered.filter(p => p.id !== options.excludeId);
     }
     
     if (options?.limit) {
-        return filteredProducts.slice(0, options.limit);
+        return filtered.slice(0, options.limit);
     }
 
-    return filteredProducts;
-  }, [allProducts, options]);
+    return filtered;
+  }, [products, options]);
 
-  return { products, loading, error };
+  return { products: filteredProducts, loading, error };
 }
 
 
