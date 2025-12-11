@@ -38,12 +38,14 @@ export default function SideCart() {
                 {cartItems.map(item => (
                   <div key={item.id} className="flex items-center space-x-4">
                     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border">
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                      />
+                      {item.imageUrls && item.imageUrls[0] && (
+                        <Image
+                          src={item.imageUrls[0]}
+                          alt={item.name}
+                          fill
+                          className="object-cover"
+                        />
+                      )}
                     </div>
                     <div className="flex flex-1 flex-col gap-1">
                       <span className="font-semibold">{item.name}</span>
