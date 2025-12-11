@@ -10,7 +10,7 @@ import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { PaginationControls } from '@/components/ui/pagination';
 
@@ -20,22 +20,18 @@ export default function ProductsClientPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const selectedCategory = searchParams.get('category');
+  const initialSearch = searchParams.get('search') || '';
+
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [sortOption, setSortOption] = useState<SortOption>('name-asc');
   const [currentPage, setCurrentPage] = useState(1);
 
   const { products, loading } = useProducts();
   const { categories, loading: categoriesLoading } = useCategories();
 
-  useEffect(() => {
-    setSelectedCategory(searchParams.get('category'));
-    setSearchTerm(searchParams.get('search') || '');
-    setCurrentPage(1); // Reset to first page on filter change
-  }, [searchParams]);
-
   const handleCategorySelect = (categoryName: string | null) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
     if (categoryName) {
       params.set('category', categoryName);
     } else {
@@ -43,17 +39,19 @@ export default function ProductsClientPage() {
     }
     params.delete('search'); // Clear search when changing category
     setSearchTerm('');
+    setCurrentPage(1);
     router.push(`/products?${params.toString()}`);
   };
   
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-        const params = new URLSearchParams(searchParams.toString());
+        const params = new URLSearchParams(window.location.search);
         if (searchTerm) {
             params.set('search', searchTerm);
         } else {
             params.delete('search');
         }
+        setCurrentPage(1);
         router.push(`/products?${params.toString()}`);
     }
   }
@@ -62,7 +60,7 @@ export default function ProductsClientPage() {
     let filtered = [...products];
 
     if (selectedCategory) {
-      filtered = filtered.filter(p => p.category === selectedCategory);
+      filtered = filtered.filter(p => p.category.toLowerCase() === selectedCategory.toLowerCase());
     }
 
     if (searchTerm) {
@@ -111,7 +109,7 @@ export default function ProductsClientPage() {
             categories.map(category => (
                 <Button
                     key={category.id}
-                    variant={selectedCategory === category.name ? 'secondary' : 'outline'}
+                    variant={selectedCategory?.toLowerCase() === category.name.toLowerCase() ? 'secondary' : 'outline'}
                     onClick={() => handleCategorySelect(category.name)}
                     className="rounded-lg flex items-center gap-3 h-14 whitespace-nowrap p-2 pr-4"
                 >
