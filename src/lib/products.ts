@@ -170,4 +170,3 @@ export const useProduct = (id: string) => {
 
     return { product, loading, error };
 };
-

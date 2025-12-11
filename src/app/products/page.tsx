@@ -37,11 +37,11 @@ export default function AllProductsPage() {
   useEffect(() => {
     setSelectedCategory(searchParams.get('category'));
     setSearchTerm(searchParams.get('search') || '');
+    setCurrentPage(1); // Reset to first page on filter change
   }, [searchParams]);
 
   const handleCategorySelect = (categoryName: string | null) => {
-    setSelectedCategory(categoryName);
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams.toString());
     if (categoryName) {
       params.set('category', categoryName);
     } else {
@@ -49,10 +49,19 @@ export default function AllProductsPage() {
     }
     router.push(`/products?${params.toString()}`);
   };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+  
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+        const params = new URLSearchParams(searchParams.toString());
+        if (searchTerm) {
+            params.set('search', searchTerm);
+        } else {
+            params.delete('search');
+        }
+        router.push(`/products?${params.toString()}`);
+    }
   }
+
 
   const paginatedProducts = useMemo(() => {
     const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
@@ -130,7 +139,8 @@ export default function AllProductsPage() {
               placeholder="Search products..." 
               className="pl-10 h-11" 
               value={searchTerm}
-              onChange={handleSearchChange}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
             />
           </div>
           <div className="flex items-center gap-4">
@@ -173,7 +183,7 @@ export default function AllProductsPage() {
             ))
         }
       </div>
-      {!loading && products.length === 0 && (
+      {!loading && paginatedProducts.length === 0 && (
         <div className="text-center col-span-full py-16">
             <p className="text-muted-foreground">No products found matching your criteria.</p>
         </div>
