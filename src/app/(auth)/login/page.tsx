@@ -1,4 +1,3 @@
-import LoginForm from '@/components/auth/LoginForm';
 import {
   Card,
   CardContent,
@@ -7,6 +6,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import Link from 'next/link';
+import { Suspense } from 'react';
+import LoginClientPage from './LoginClientPage';
 
 export default function LoginPage() {
   return (
@@ -19,7 +20,9 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <LoginForm />
+          <Suspense>
+            <LoginClientPage />
+          </Suspense>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{' '}
             <Link href="/signup" className="underline">
