@@ -220,7 +220,7 @@ export default function CheckoutPage() {
             name: item.name,
             price: item.price,
             quantity: item.quantity,
-            imageUrl: item.imageUrl,
+            imageUrl: item.imageUrls?.[0] || '',
         }));
 
         const orderData = {
@@ -330,8 +330,8 @@ export default function CheckoutPage() {
                     {cartItems.map((item) => (
                     <div key={item.id} className="flex items-start gap-4">
                         <div className="relative h-16 w-16 rounded-md overflow-hidden border">
-                        {item.imageUrl && (
-                            <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
+                        {item.imageUrls && item.imageUrls[0] && (
+                            <Image src={item.imageUrls[0]} alt={item.name} fill className="object-cover" />
                         )}
                         </div>
                         <div className="flex-grow">
