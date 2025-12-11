@@ -20,8 +20,8 @@ export default function ProductsClientPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get('category'));
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('name-asc');
   const [currentPage, setCurrentPage] = useState(1);
 

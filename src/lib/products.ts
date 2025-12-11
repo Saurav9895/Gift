@@ -75,7 +75,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
 
 export type SortOption = "name-asc" | "name-desc" | "price-asc" | "price-desc";
 
-export const useProducts = (options?: { limit?: number; excludeId?: string; }) => {
+export const useProducts = (options?: { excludeId?: string; limit?: number }) => {
   const [products, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,22 +98,23 @@ export const useProducts = (options?: { limit?: number; excludeId?: string; }) =
 
     return () => unsubscribe();
   }, []);
-
-  const filteredProducts = useMemo(() => {
+  
+  const finalProducts = useMemo(() => {
     let filtered = [...products];
-
-    if (options?.excludeId) {
+     if (options?.excludeId) {
         filtered = filtered.filter(p => p.id !== options.excludeId);
     }
     
     if (options?.limit) {
         return filtered.slice(0, options.limit);
     }
-
+    
     return filtered;
+
   }, [products, options]);
 
-  return { products: filteredProducts, loading, error };
+
+  return { products: finalProducts, loading, error };
 }
 
 
